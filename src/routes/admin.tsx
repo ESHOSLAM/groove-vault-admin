@@ -56,22 +56,40 @@ function AdminPage() {
   }
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || !editing) return;
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length || !editing) return;
+    const remaining = 4 - editing.image_urls.length;
+    if (remaining <= 0) {
+      toast.error("Максимум 4 изображения");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    const toUpload = files.slice(0, remaining);
     setUploading(true);
     try {
-      const fd = new FormData();
-      fd.append("password", getPassword());
-      fd.append("file", file);
-      const res = await uploadFn({ data: fd });
-      setEditing({ ...editing, image_url: res.url });
-      toast.success("Фото загружено");
+      const urls: string[] = [];
+      for (const file of toUpload) {
+        const fd = new FormData();
+        fd.append("password", getPassword());
+        fd.append("file", file);
+        const res = await uploadFn({ data: fd });
+        urls.push(res.url);
+      }
+      const next = [...editing.image_urls, ...urls].slice(0, 4);
+      setEditing({ ...editing, image_urls: next, image_url: next[0] ?? editing.image_url });
+      toast.success(`Загружено: ${urls.length}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Ошибка загрузки");
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
+  }
+
+  function removeImage(idx: number) {
+    if (!editing) return;
+    const next = editing.image_urls.filter((_, i) => i !== idx);
+    setEditing({ ...editing, image_urls: next, image_url: next[0] ?? null });
   }
 
   useEffect(() => {
