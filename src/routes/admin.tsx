@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Pencil, Plus, Trash2, Disc3, Upload, Loader2 } from "lucide-react";
+import { Pencil, Plus, Trash2, Disc3, Upload, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { saveVinyl, deleteVinyl, uploadVinylImage } from "@/lib/admin.functions";
