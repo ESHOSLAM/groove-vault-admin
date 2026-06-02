@@ -158,7 +158,7 @@ export function CartDrawer() {
           <DialogFooter className="flex-col gap-2 sm:flex-col">
             <Button className="w-full" size="lg" onClick={sendToSeller}>
               <Send className="h-4 w-4" />
-              Написать продавцу
+              Написать продавцу в Telegram
             </Button>
             <Button className="w-full" size="lg" variant="secondary" onClick={sendToSellerVk}>
               <VkIcon />
