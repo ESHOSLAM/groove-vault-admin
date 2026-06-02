@@ -182,47 +182,35 @@ function AdminPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Изображения ({editing.image_urls.length}/{MAX_IMAGES})</Label>
-                    {editing.image_urls.length > 0 && (
-                      <div className="grid grid-cols-4 gap-2">
-                        {editing.image_urls.map((url, i) => (
-                          <div key={url + i} className="relative">
-                            <img src={url} alt="" className="aspect-square w-full object-cover rounded border border-border" />
-                            <button
-                              type="button"
-                              onClick={() => removeImageAt(i)}
-                              className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full h-5 w-5 flex items-center justify-center text-xs"
-                            >
-                              ×
-                            </button>
-                            {i === 0 && (
-                              <span className="absolute bottom-1 left-1 bg-background/80 text-foreground text-[10px] px-1 rounded">обложка</span>
-                            )}
-                          </div>
-                        ))}
+                    <Label>Изображение</Label>
+                    {editing.image_url && (
+                      <div className="relative w-32">
+                        <img src={editing.image_url} alt="" className="aspect-square w-full object-cover rounded border border-border" />
+                        <button
+                          type="button"
+                          onClick={() => setEditing({ ...editing, image_url: "" })}
+                          className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full h-5 w-5 flex items-center justify-center text-xs"
+                        >
+                          ×
+                        </button>
                       </div>
                     )}
                     <div className="flex gap-2">
                       <Input
-                        placeholder="URL изображения (Enter чтобы добавить)"
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            addUrlImage((e.target as HTMLInputElement).value);
-                            (e.target as HTMLInputElement).value = "";
-                          }
-                        }}
+                        placeholder="URL изображения"
+                        value={editing.image_url ?? ""}
+                        onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
                       />
                       <Button
                         type="button"
                         variant="outline"
                         size="icon"
-                        disabled={uploading || editing.image_urls.length >= MAX_IMAGES}
+                        disabled={uploading}
                         onClick={() => fileInputRef.current?.click()}
                       >
                         {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                       </Button>
-                      <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileUpload} />
+                      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
                     </div>
                   </div>
                   <div><Label>Описание</Label><Textarea value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></div>
