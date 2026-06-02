@@ -29,6 +29,35 @@ function AdminPage() {
   const [vinyls, setVinyls] = useState<Vinyl[]>([]);
   const [editing, setEditing] = useState<FormState | null>(null);
   const [open, setOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !editing) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("vinyl-images").upload(path, file, {
+        cacheControl: "31536000",
+        upsert: false,
+      });
+      if (upErr) throw upErr;
+      const { data, error: sErr } = await supabase.storage
+        .from("vinyl-images")
+        .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+      if (sErr || !data) throw sErr ?? new Error("Не удалось получить URL");
+      setEditing({ ...editing, image_url: data.signedUrl });
+      toast.success("Фото загружено");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Ошибка загрузки");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
 
   useEffect(() => {
     const ok = typeof window !== "undefined" && sessionStorage.getItem("admin_access") === "true";
