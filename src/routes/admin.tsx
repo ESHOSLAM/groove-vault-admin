@@ -14,16 +14,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Vinyl } from "@/components/VinylCard";
 
-const GENRES = ["Rock", "Pop", "Jazz", "Classical", "Electronic", "Hip-Hop", "Blues", "Soul/Funk", "Reggae", "Metal", "Folk", "Country"];
+const GENRES = ["Классика", "Rock", "Pop", "Jazz", "Classical", "Electronic", "Hip-Hop", "Blues", "Soul/Funk", "Reggae", "Metal", "Folk", "Country"];
 const CONDITIONS = [
   { v: "M", l: "M — Mint (новый)" },
   { v: "NM", l: "NM — Near Mint" },
+  { v: "EX", l: "EX — Excellent" },
   { v: "VG+", l: "VG+ — Very Good Plus" },
   { v: "VG", l: "VG — Very Good" },
-  { v: "G+", l: "G+ — Good Plus" },
-  { v: "G", l: "G — Good" },
-  { v: "F", l: "F — Fair" },
-  { v: "P", l: "P — Poor" },
 ];
 
 export const Route = createFileRoute("/admin")({
@@ -163,12 +160,15 @@ function AdminPage() {
                     <div><Label>Название</Label><Input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} /></div>
                     <div>
                       <Label>Жанр</Label>
-                      <Select value={editing.genre} onValueChange={(val) => setEditing({ ...editing, genre: val })}>
-                        <SelectTrigger><SelectValue placeholder="Выберите жанр" /></SelectTrigger>
-                        <SelectContent>
-                          {GENRES.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <Input
+                        list="genres-list"
+                        value={editing.genre}
+                        onChange={(e) => setEditing({ ...editing, genre: e.target.value })}
+                        placeholder="Выберите или введите жанр"
+                      />
+                      <datalist id="genres-list">
+                        {GENRES.map((g) => <option key={g} value={g} />)}
+                      </datalist>
                     </div>
                     <div><Label>Год</Label><Input type="number" value={editing.year ?? ""} onChange={(e) => setEditing({ ...editing, year: e.target.value ? +e.target.value : null })} /></div>
                     <div><Label>Цена ₽</Label><Input type="number" value={editing.price} onChange={(e) => setEditing({ ...editing, price: +e.target.value })} /></div>
