@@ -162,15 +162,12 @@ function AdminPage() {
                     <div><Label>Название</Label><Input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} /></div>
                     <div>
                       <Label>Жанр</Label>
-                      <Input
-                        list="genres-list"
-                        value={editing.genre}
-                        onChange={(e) => setEditing({ ...editing, genre: e.target.value })}
-                        placeholder="Выберите или введите жанр"
-                      />
-                      <datalist id="genres-list">
-                        {GENRES.map((g) => <option key={g} value={g} />)}
-                      </datalist>
+                      <Select value={editing.genre} onValueChange={(val) => setEditing({ ...editing, genre: val })}>
+                        <SelectTrigger><SelectValue placeholder="Выберите жанр" /></SelectTrigger>
+                        <SelectContent>
+                          {GENRES.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div><Label>Год</Label><Input type="number" value={editing.year ?? ""} onChange={(e) => setEditing({ ...editing, year: e.target.value ? +e.target.value : null })} /></div>
                     <div><Label>Цена ₽</Label><Input type="number" value={editing.price} onChange={(e) => setEditing({ ...editing, price: +e.target.value })} /></div>
