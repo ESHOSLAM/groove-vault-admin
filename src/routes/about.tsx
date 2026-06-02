@@ -76,7 +76,7 @@ function AboutPage() {
         <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card/80 to-primary/10 p-8 md:p-10 text-center">
           <Disc3 className="absolute -right-10 -bottom-10 h-48 w-48 text-primary/10" />
           <h2 className="font-display text-2xl md:text-3xl tracking-wide mb-3">
-            Давайте поговорим о виниле
+            Вопросы по товару?
           </h2>
           <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
             Подобрать пластинку, договориться о встрече или уточнить наличие — пишите
