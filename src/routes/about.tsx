@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Disc3, Music, Users, Droplets, Truck, RefreshCw, Send, Sparkles } from "lucide-react";
+import { Disc3, Music, Users, Droplets, Truck, RefreshCw, Send } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 
@@ -17,7 +17,7 @@ const features = [
   {
     icon: Music,
     title: "2000+ пластинок",
-    text: "Большая личная коллекция — от классики рока и джаза до редких изданий и современных переизданий.",
+    text: "Большая коллекция — от классики рока и джаза до редких изданий и современных переизданий.",
   },
   {
     icon: Users,
@@ -48,12 +48,7 @@ function AboutPage() {
       <main className="container mx-auto px-4 py-16 max-w-4xl">
         {/* Hero */}
         <div className="relative mb-14 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-card/60 text-xs uppercase tracking-widest text-muted-foreground mb-6">
-            <Sparkles className="h-3.5 w-3.5 text-gold" />
-            Винил LP Sevas
-          </div>
           <div className="flex items-center justify-center gap-3 mb-4">
-            <Disc3 className="h-10 w-10 text-primary vinyl-spin" />
             <h1 className="font-display text-4xl md:text-6xl tracking-wide">ОБО МНЕ</h1>
           </div>
           <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
