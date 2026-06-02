@@ -22,6 +22,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [vinyls, setVinyls] = useState<Vinyl[]>([]);
   const [genre, setGenre] = useState<string>("Все");
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
