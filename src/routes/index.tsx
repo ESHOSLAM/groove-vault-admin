@@ -34,7 +34,7 @@ function Index() {
   }, []);
 
   const genres = useMemo(() => {
-    const set = new Set(vinyls.map((v) => v.genre));
+    const set = new Set(vinyls.map((v) => v.genre).filter((g) => g.toLowerCase() !== "классика"));
     return ["Все", ...Array.from(set)];
   }, [vinyls]);
 
