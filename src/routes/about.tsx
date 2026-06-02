@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Disc3, Music, Users, Droplets, Truck, RefreshCw, Send, Sparkles } from "lucide-react";
+import { Disc3, Music, Users, Droplets, Truck, RefreshCw, Send } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 
