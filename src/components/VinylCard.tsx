@@ -16,19 +16,14 @@ export type Vinyl = {
   condition: string | null;
   description: string | null;
   image_url: string | null;
-  image_urls?: string[] | null;
   in_stock: boolean;
 };
 
 export function VinylCard({ v }: { v: Vinyl }) {
   const { add } = useCart();
   const [open, setOpen] = useState(false);
-  const images = [
-    ...(v.image_urls ?? []),
-    ...(v.image_url && !(v.image_urls ?? []).includes(v.image_url) ? [v.image_url] : []),
-  ];
-  const cover = images[0] ?? v.image_url ?? null;
-  const [active, setActive] = useState(0);
+  const cover = v.image_url;
+
 
   function addToCart(e?: React.MouseEvent) {
     e?.stopPropagation();
