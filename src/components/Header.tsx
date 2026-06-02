@@ -1,11 +1,28 @@
-import { Link } from "@tanstack/react-router";
-import { Disc3, LogIn, LogOut, Shield } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Disc3, Shield, LogOut } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/use-auth";
 
 export function Header() {
-  const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    setIsAdmin(sessionStorage.getItem("admin_access") === "true");
+    const handler = () => setIsAdmin(sessionStorage.getItem("admin_access") === "true");
+    window.addEventListener("storage", handler);
+    window.addEventListener("admin-access-changed", handler);
+    return () => {
+      window.removeEventListener("storage", handler);
+      window.removeEventListener("admin-access-changed", handler);
+    };
+  }, []);
+
+  function logout() {
+    sessionStorage.removeItem("admin_access");
+    window.dispatchEvent(new Event("admin-access-changed"));
+    navigate({ to: "/" });
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
@@ -16,18 +33,18 @@ export function Header() {
         </Link>
 
         <nav className="flex items-center gap-2">
-          {isAdmin && (
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/admin"><Shield className="h-4 w-4 mr-1" /> Админ</Link>
-            </Button>
-          )}
-          {user ? (
-            <Button variant="outline" size="sm" onClick={() => supabase.auth.signOut()}>
-              <LogOut className="h-4 w-4 mr-1" /> Выйти
-            </Button>
+          {isAdmin ? (
+            <>
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/admin"><Shield className="h-4 w-4 mr-1" /> Админ</Link>
+              </Button>
+              <Button variant="outline" size="sm" onClick={logout}>
+                <LogOut className="h-4 w-4 mr-1" /> Выйти
+              </Button>
+            </>
           ) : (
             <Button asChild size="sm">
-              <Link to="/auth"><LogIn className="h-4 w-4 mr-1" /> Войти</Link>
+              <Link to="/auth"><Shield className="h-4 w-4 mr-1" /> Администратор</Link>
             </Button>
           )}
         </nav>
