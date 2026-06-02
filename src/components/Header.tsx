@@ -32,7 +32,7 @@ export function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2 group">
           <Disc3 className="h-7 w-7 text-primary group-hover:vinyl-spin" />
-          <span className="font-display text-2xl tracking-wider">ВИНИЛ <span className="text-gold">LP</span> SEVAS</span>
+          <span className="font-display text-2xl tracking-wider">ВИНИЛ <span className="text-gold">SALE</span> SEV</span>
         </Link>
 
         <nav className="flex items-center gap-1 sm:gap-2">
