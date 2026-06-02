@@ -16,8 +16,15 @@ export type Vinyl = {
   condition: string | null;
   description: string | null;
   image_url: string | null;
+  image_urls?: string[] | null;
   in_stock: boolean;
 };
+
+export function getVinylImages(v: Vinyl): string[] {
+  const arr = (v.image_urls ?? []).filter(Boolean);
+  if (arr.length > 0) return arr;
+  return v.image_url ? [v.image_url] : [];
+}
 
 export function VinylCard({ v }: { v: Vinyl }) {
   const { add } = useCart();
