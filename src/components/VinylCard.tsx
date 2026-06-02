@@ -73,7 +73,7 @@ export function VinylCard({ v }: { v: Vinyl }) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-display text-2xl tracking-wide">
+            <DialogTitle className="font-display text-2xl tracking-wide break-words">
               {v.artist} — {v.title}
             </DialogTitle>
             <DialogDescription className="uppercase tracking-widest text-xs">
@@ -90,13 +90,13 @@ export function VinylCard({ v }: { v: Vinyl }) {
                 </div>
               )}
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col min-w-0">
               <p className="font-display text-3xl text-gold">{v.price.toLocaleString("ru-RU")} ₽</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 {v.in_stock ? "В наличии" : "Нет в наличии"}
               </p>
               <h4 className="mt-5 text-sm uppercase tracking-widest text-muted-foreground">Описание</h4>
-              <p className="mt-2 text-sm leading-relaxed whitespace-pre-wrap">
+              <p className="mt-2 text-sm leading-relaxed whitespace-pre-wrap break-words">
                 {v.description?.trim() || "Описание пока не добавлено."}
               </p>
               <Button className="mt-auto pt-3" disabled={!v.in_stock} onClick={addToCart}>
