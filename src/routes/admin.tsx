@@ -45,6 +45,7 @@ function AdminPage() {
   const [editing, setEditing] = useState<FormState | null>(null);
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [query, setQuery] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const saveVinylFn = useServerFn(saveVinyl);
