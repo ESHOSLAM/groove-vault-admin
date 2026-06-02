@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Disc3, Music, Users, Droplets, Truck, RefreshCw, Send } from "lucide-react";
+import { Disc3, Send } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 
@@ -15,27 +15,22 @@ export const Route = createFileRoute("/about")({
 
 const features = [
   {
-    icon: Music,
     title: "2000+ пластинок",
     text: "Большая коллекция — от классики рока и джаза до редких изданий и современных переизданий.",
   },
   {
-    icon: Users,
     title: "Личная встреча",
     text: "Приезжайте посмотреть весь винил вживую — послушать, подержать в руках, выбрать спокойно и без спешки.",
   },
   {
-    icon: Droplets,
     title: "Мойка винила",
     text: "Каждую пластинку лично мою и проверяю перед продажей.",
   },
   {
-    icon: Truck,
     title: "Отправка по России",
     text: "Аккуратно упакую и отправлю в любой город — винил доедет в целости и сохранности.",
   },
   {
-    icon: RefreshCw,
     title: "Пополнения 1–2 раза в неделю",
     text: "Регулярно появляются новые поступления — заглядывайте чаще, чтобы не пропустить редкие издания.",
   },
@@ -62,7 +57,6 @@ function AboutPage() {
         {/* Features */}
         <div className="grid sm:grid-cols-2 gap-4 mb-14">
           {features.map((f, i) => {
-            const Icon = f.icon;
             const wide = i === features.length - 1 && features.length % 2 === 1;
             return (
               <div
@@ -71,15 +65,8 @@ function AboutPage() {
                   wide ? "sm:col-span-2" : ""
                 }`}
               >
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 h-11 w-11 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center group-hover:bg-gold/10 group-hover:border-gold/40 transition-colors">
-                    <Icon className="h-5 w-5 text-gold" />
-                  </div>
-                  <div>
-                    <h3 className="font-display text-lg tracking-wide mb-1">{f.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{f.text}</p>
-                  </div>
-                </div>
+                <h3 className="font-display text-lg tracking-wide mb-1">{f.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{f.text}</p>
               </div>
             );
           })}
