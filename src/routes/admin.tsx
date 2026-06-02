@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Pencil, Plus, Trash2, Disc3 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/use-auth";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,15 +24,17 @@ const empty: FormState = {
 };
 
 function AdminPage() {
-  const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [vinyls, setVinyls] = useState<Vinyl[]>([]);
   const [editing, setEditing] = useState<FormState | null>(null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) navigate({ to: "/auth" });
-  }, [user, loading, navigate]);
+    const ok = typeof window !== "undefined" && sessionStorage.getItem("admin_access") === "true";
+    setIsAdmin(ok);
+    if (!ok) navigate({ to: "/auth" });
+  }, [navigate]);
 
   async function refresh() {
     const { data } = await supabase.from("vinyls").select("*").order("created_at", { ascending: false });
@@ -64,7 +65,7 @@ function AdminPage() {
     toast.success("Удалено"); refresh();
   }
 
-  if (loading) {
+  if (isAdmin === null) {
     return <div className="min-h-screen flex items-center justify-center"><Disc3 className="h-10 w-10 text-primary vinyl-spin" /></div>;
   }
   if (!isAdmin) {
