@@ -47,42 +47,7 @@ function Index() {
     <div className="min-h-screen bg-hero">
       <Header />
 
-      <section className="relative overflow-hidden border-b border-border/60">
-        <div className="container mx-auto px-4 py-20 md:py-28 grid md:grid-cols-2 gap-10 items-center">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-3 py-1 text-xs uppercase tracking-widest text-muted-foreground">
-              <Sparkles className="h-3 w-3 text-primary" /> Коллекция 2026
-            </div>
-            <h1 className="mt-5 font-display text-5xl md:text-7xl leading-[0.95] tracking-wide">
-              ТЁПЛЫЙ ЗВУК<br />
-              <span className="text-gold">НАСТОЯЩЕГО</span> ВИНИЛА
-            </h1>
-            <p className="mt-5 max-w-md text-muted-foreground">
-              Тщательно отобранные пластинки из эпох золотого века музыки.
-              От джаза 50-х до электроники наших дней.
-            </p>
-            <div className="mt-7 flex gap-3">
-              <Button size="lg" asChild>
-                <a href="#catalog">Смотреть каталог</a>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <a href="#genres">По жанрам</a>
-              </Button>
-            </div>
-          </div>
-          <div className="relative h-72 md:h-96 flex items-center justify-center">
-            <div className="absolute inset-0 bg-gold rounded-full blur-3xl opacity-20" />
-            <div className="relative h-64 w-64 md:h-80 md:w-80 rounded-full bg-gradient-to-br from-neutral-900 to-black shadow-vinyl vinyl-spin flex items-center justify-center">
-              <div className="absolute inset-4 rounded-full border border-neutral-800" />
-              <div className="absolute inset-10 rounded-full border border-neutral-800" />
-              <div className="absolute inset-16 rounded-full border border-neutral-800" />
-              <div className="h-20 w-20 rounded-full bg-gold flex items-center justify-center">
-                <div className="h-3 w-3 rounded-full bg-background" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       <section id="catalog" className="container mx-auto px-4 py-14">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
