@@ -65,10 +65,22 @@ export function CartDrawer() {
               <span className="text-muted-foreground">Итого:</span>
               <span className="font-display text-2xl text-gold">{total.toLocaleString("ru-RU")} ₽</span>
             </div>
-            <Button className="w-full" size="lg" onClick={() => { toast.success("Заказ оформлен! Свяжитесь со мной для оплаты."); clear(); }}>
-              Оформить заказ
+            <Button
+              className="w-full"
+              size="lg"
+              onClick={() => {
+                const lines = items.map(
+                  ({ vinyl, qty }) =>
+                    `• ${vinyl.artist} — ${vinyl.title} × ${qty} = ${(vinyl.price * qty).toLocaleString("ru-RU")} ₽`
+                );
+                const text = `Здравствуйте! Хочу заказать:\n${lines.join("\n")}\n\nИтого: ${total.toLocaleString("ru-RU")} ₽`;
+                const url = `https://t.me/Selling_vinyl_LP?text=${encodeURIComponent(text)}`;
+                window.open(url, "_blank");
+                toast.success("Открываю Telegram продавца");
+              }}
+            >
+              Написать продавцу
             </Button>
-            <Button variant="ghost" size="sm" className="w-full" onClick={clear}>Очистить корзину</Button>
           </SheetFooter>
         )}
       </SheetContent>
