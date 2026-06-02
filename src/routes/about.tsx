@@ -82,16 +82,38 @@ function AboutPage() {
             Подобрать пластинку, договориться о встрече или уточнить наличие — пишите
             напрямую в Telegram. Отвечаю быстро.
           </p>
-          <Button asChild size="lg" className="gap-2">
-            <a
-              href="https://t.me/Selling_vinyl_LP"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Send className="h-4 w-4" />
-              Написать в Telegram
-            </a>
-          </Button>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Button asChild size="lg" className="gap-2">
+              <a
+                href="https://t.me/Selling_vinyl_LP"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Send className="h-4 w-4" />
+                Написать в Telegram
+              </a>
+            </Button>
+            <Button asChild size="lg" className="gap-2">
+              <a
+                href="https://vk.com/ggssds"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Send className="h-4 w-4" />
+                Написать в ВК
+              </a>
+            </Button>
+            <Button asChild size="lg" className="gap-2">
+              <a
+                href="https://www.avito.ru/brands/c9d7995acae40a8750e733162dc587f3/all?page_from=from_item_card&iid=7739086865&sellerId=8556f8a44d73ec72e69970d29e10167a"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Send className="h-4 w-4" />
+                Профиль на Авито
+              </a>
+            </Button>
+          </div>
         </div>
       </main>
     </div>
