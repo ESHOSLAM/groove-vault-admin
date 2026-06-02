@@ -97,12 +97,28 @@ export function VinylCard({ v }: { v: Vinyl }) {
             </DialogDescription>
           </DialogHeader>
           <div className="grid md:grid-cols-2 gap-5">
-            <div className="aspect-square overflow-hidden rounded-lg bg-muted">
-              {v.image_url ? (
-                <img src={v.image_url} alt={`${v.artist} — ${v.title}`} className="h-full w-full object-cover" />
-              ) : (
-                <div className="flex h-full items-center justify-center">
-                  <Disc3 className="h-24 w-24 text-muted-foreground" />
+            <div>
+              <div className="aspect-square overflow-hidden rounded-lg bg-muted">
+                {dialogImage ? (
+                  <img src={dialogImage} alt={`${v.artist} — ${v.title}`} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <Disc3 className="h-24 w-24 text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+              {images.length > 1 && (
+                <div className="mt-2 grid grid-cols-4 gap-2">
+                  {images.map((url, i) => (
+                    <button
+                      key={url + i}
+                      type="button"
+                      onClick={() => setActiveIdx(i)}
+                      className={`aspect-square overflow-hidden rounded border ${i === activeIdx ? "border-primary" : "border-border"}`}
+                    >
+                      <img src={url} alt="" className="h-full w-full object-cover" />
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
