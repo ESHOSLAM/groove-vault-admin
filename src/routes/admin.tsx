@@ -138,7 +138,23 @@ function AdminPage() {
                     <div><Label>Цена ₽</Label><Input type="number" value={editing.price} onChange={(e) => setEditing({ ...editing, price: +e.target.value })} /></div>
                     <div><Label>Состояние</Label><Input value={editing.condition ?? ""} onChange={(e) => setEditing({ ...editing, condition: e.target.value })} /></div>
                   </div>
-                  <div><Label>URL изображения</Label><Input value={editing.image_url ?? ""} onChange={(e) => setEditing({ ...editing, image_url: e.target.value })} /></div>
+                  <div className="space-y-2">
+                    <Label>Изображение</Label>
+                    {editing.image_url && (
+                      <img src={editing.image_url} alt="" className="h-32 w-32 object-cover rounded border border-border" />
+                    )}
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="URL изображения или загрузите файл"
+                        value={editing.image_url ?? ""}
+                        onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
+                      />
+                      <Button type="button" variant="outline" size="icon" disabled={uploading} onClick={() => fileInputRef.current?.click()}>
+                        {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                      </Button>
+                      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+                    </div>
+                  </div>
                   <div><Label>Описание</Label><Textarea value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></div>
                   <label className="flex items-center gap-2 text-sm">
                     <input type="checkbox" checked={editing.in_stock} onChange={(e) => setEditing({ ...editing, in_stock: e.target.checked })} />
