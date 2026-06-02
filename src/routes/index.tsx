@@ -38,7 +38,18 @@ function Index() {
     return ["Все", ...Array.from(set)];
   }, [vinyls]);
 
-  const filtered = genre === "Все" ? vinyls : vinyls.filter((v) => v.genre === genre);
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return vinyls.filter((v) => {
+      if (genre !== "Все" && v.genre !== genre) return false;
+      if (!q) return true;
+      return (
+        v.title.toLowerCase().includes(q) ||
+        v.artist.toLowerCase().includes(q) ||
+        v.genre.toLowerCase().includes(q)
+      );
+    });
+  }, [vinyls, genre, query]);
   const byGenre = useMemo(() => {
     const groups: Record<string, Vinyl[]> = {};
     for (const v of vinyls) (groups[v.genre] ??= []).push(v);
