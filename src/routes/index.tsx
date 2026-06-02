@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Disc3, Sparkles } from "lucide-react";
+import { Disc3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { VinylCard, type Vinyl } from "@/components/VinylCard";
-import { Button } from "@/components/ui/button";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
