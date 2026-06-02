@@ -57,23 +57,29 @@ function AdminPage() {
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
+    console.log("[upload] files selected:", files.length, files.map((f) => f.name));
     if (!files.length || !editing) return;
     setUploading(true);
+    const existing = editing.image_urls ?? (editing.image_url ? [editing.image_url] : []);
+    const uploaded: string[] = [];
     try {
-      const existing = editing.image_urls ?? [];
-      const uploaded: string[] = [];
       for (const file of files) {
         const fd = new FormData();
         fd.append("password", getPassword());
         fd.append("file", file);
-        const res = await uploadFn({ data: fd });
-        uploaded.push(res.url);
+        try {
+          const res = await uploadFn({ data: fd });
+          console.log("[upload] ok:", file.name, res.url);
+          uploaded.push(res.url);
+        } catch (err) {
+          console.error("[upload] failed:", file.name, err);
+          toast.error(`${file.name}: ${err instanceof Error ? err.message : "ошибка"}`);
+        }
       }
       const all = [...existing, ...uploaded];
-      setEditing({ ...editing, image_urls: all, image_url: editing.image_url || all[0] });
-      toast.success(`Загружено: ${uploaded.length}`);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Ошибка загрузки");
+      console.log("[upload] total now:", all.length);
+      setEditing({ ...editing, image_urls: all, image_url: editing.image_url || all[0] || "" });
+      if (uploaded.length) toast.success(`Загружено: ${uploaded.length}`);
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
