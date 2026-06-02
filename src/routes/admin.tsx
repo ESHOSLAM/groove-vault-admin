@@ -11,7 +11,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Vinyl } from "@/components/VinylCard";
+
+const GENRES = ["Rock", "Pop", "Jazz", "Classical", "Electronic", "Hip-Hop", "Blues", "Soul/Funk", "Reggae", "Metal", "Folk", "Country"];
+const CONDITIONS = [
+  { v: "M", l: "M — Mint (новый)" },
+  { v: "NM", l: "NM — Near Mint" },
+  { v: "VG+", l: "VG+ — Very Good Plus" },
+  { v: "VG", l: "VG — Very Good" },
+  { v: "G+", l: "G+ — Good Plus" },
+  { v: "G", l: "G — Good" },
+  { v: "F", l: "F — Fair" },
+  { v: "P", l: "P — Poor" },
+];
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Админ — ГРАМПЛАСТ" }] }),
@@ -147,10 +160,26 @@ function AdminPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <div><Label>Исполнитель</Label><Input value={editing.artist} onChange={(e) => setEditing({ ...editing, artist: e.target.value })} /></div>
                     <div><Label>Название</Label><Input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} /></div>
-                    <div><Label>Жанр</Label><Input value={editing.genre} onChange={(e) => setEditing({ ...editing, genre: e.target.value })} /></div>
+                    <div>
+                      <Label>Жанр</Label>
+                      <Select value={editing.genre} onValueChange={(val) => setEditing({ ...editing, genre: val })}>
+                        <SelectTrigger><SelectValue placeholder="Выберите жанр" /></SelectTrigger>
+                        <SelectContent>
+                          {GENRES.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <div><Label>Год</Label><Input type="number" value={editing.year ?? ""} onChange={(e) => setEditing({ ...editing, year: e.target.value ? +e.target.value : null })} /></div>
                     <div><Label>Цена ₽</Label><Input type="number" value={editing.price} onChange={(e) => setEditing({ ...editing, price: +e.target.value })} /></div>
-                    <div><Label>Состояние</Label><Input value={editing.condition ?? ""} onChange={(e) => setEditing({ ...editing, condition: e.target.value })} /></div>
+                    <div>
+                      <Label>Состояние</Label>
+                      <Select value={editing.condition ?? ""} onValueChange={(val) => setEditing({ ...editing, condition: val })}>
+                        <SelectTrigger><SelectValue placeholder="Состояние" /></SelectTrigger>
+                        <SelectContent>
+                          {CONDITIONS.map((c) => <SelectItem key={c.v} value={c.v}>{c.l}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label>Изображение</Label>
