@@ -56,16 +56,22 @@ function AdminPage() {
   }
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || !editing) return;
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length || !editing) return;
     setUploading(true);
     try {
-      const fd = new FormData();
-      fd.append("password", getPassword());
-      fd.append("file", file);
-      const res = await uploadFn({ data: fd });
-      setEditing({ ...editing, image_url: res.url });
-      toast.success("Фото загружено");
+      const existing = editing.image_urls ?? [];
+      const uploaded: string[] = [];
+      for (const file of files) {
+        const fd = new FormData();
+        fd.append("password", getPassword());
+        fd.append("file", file);
+        const res = await uploadFn({ data: fd });
+        uploaded.push(res.url);
+      }
+      const all = [...existing, ...uploaded];
+      setEditing({ ...editing, image_urls: all, image_url: editing.image_url || all[0] });
+      toast.success(`Загружено: ${uploaded.length}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Ошибка загрузки");
     } finally {
