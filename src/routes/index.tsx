@@ -127,7 +127,7 @@ function Index() {
 
       <footer className="border-t border-border/60 py-10 mt-10">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          © 2026 ГРАМПЛАСТ. Виниловые пластинки с душой.
+          © 2026 — Виниловые пластинки г. Севастополь
         </div>
       </footer>
     </div>
