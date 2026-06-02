@@ -30,7 +30,6 @@ export const saveVinyl = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => vinylPayload.parse(input))
   .handler(async ({ data }) => {
     assertAdmin(data.password);
-    console.log("[saveVinyl] image_urls=", JSON.stringify(data.data.image_urls), "image_url=", data.data.image_url);
     if (data.id) {
       const { error } = await supabaseAdmin.from("vinyls").update(data.data).eq("id", data.id);
       if (error) { console.error("[saveVinyl] update error", error); throw new Error(error.message); }
