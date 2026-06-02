@@ -50,8 +50,8 @@ export function Header() {
               </Button>
             </>
           ) : (
-            <Button asChild size="sm">
-              <Link to="/auth"><Shield className="h-4 w-4 mr-1" /> Администратор</Link>
+            <Button asChild size="icon" aria-label="Администратор" title="Администратор">
+              <Link to="/auth"><Shield className="h-4 w-4" /></Link>
             </Button>
           )}
         </nav>
