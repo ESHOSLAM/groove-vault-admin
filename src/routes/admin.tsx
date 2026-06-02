@@ -14,16 +14,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Vinyl } from "@/components/VinylCard";
 
-const GENRES = ["Rock", "Pop", "Jazz", "Classical", "Electronic", "Hip-Hop", "Blues", "Soul/Funk", "Reggae", "Metal", "Folk", "Country"];
+const GENRES = ["Классика", "Rock", "Pop", "Jazz", "Classical", "Electronic", "Hip-Hop", "Blues", "Soul/Funk", "Reggae", "Metal", "Folk", "Country"];
 const CONDITIONS = [
   { v: "M", l: "M — Mint (новый)" },
   { v: "NM", l: "NM — Near Mint" },
+  { v: "EX", l: "EX — Excellent" },
   { v: "VG+", l: "VG+ — Very Good Plus" },
   { v: "VG", l: "VG — Very Good" },
-  { v: "G+", l: "G+ — Good Plus" },
-  { v: "G", l: "G — Good" },
-  { v: "F", l: "F — Fair" },
-  { v: "P", l: "P — Poor" },
 ];
 
 export const Route = createFileRoute("/admin")({
