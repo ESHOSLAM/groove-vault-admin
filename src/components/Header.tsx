@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Disc3, Shield, LogOut } from "lucide-react";
+import { Disc3, Shield, LogOut, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CartDrawer } from "@/components/CartDrawer";
@@ -36,8 +36,8 @@ export function Header() {
         </Link>
 
         <nav className="flex items-center gap-1 sm:gap-2">
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/about">Обо мне</Link>
+          <Button asChild variant="ghost" size="icon" aria-label="Обо мне" title="Обо мне">
+            <Link to="/about"><User className="h-4 w-4" /></Link>
           </Button>
           <CartDrawer />
           {isAdmin ? (
