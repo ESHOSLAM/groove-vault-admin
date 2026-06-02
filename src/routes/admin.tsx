@@ -28,11 +28,11 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-type FormState = Omit<Vinyl, "id" | "in_stock"> & { id?: string; in_stock: boolean };
+type FormState = Omit<Vinyl, "id" | "in_stock"> & { id?: string; in_stock: boolean; image_urls: string[] };
 
 const empty: FormState = {
   title: "", artist: "", genre: "Rock", year: new Date().getFullYear(),
-  price: 0, condition: "NM", description: "", image_url: "", in_stock: true,
+  price: 0, condition: "NM", description: "", image_url: "", image_urls: [], in_stock: true,
 };
 
 function AdminPage() {
