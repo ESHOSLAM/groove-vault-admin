@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Disc3, Shield, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { CartDrawer } from "@/components/CartDrawer";
 
 export function Header() {
   const navigate = useNavigate();
@@ -31,13 +32,14 @@ export function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2 group">
           <Disc3 className="h-7 w-7 text-primary group-hover:vinyl-spin" />
-          <span className="font-display text-2xl tracking-wider">ГРАМ<span className="text-gold">ПЛАСТ</span></span>
+          <span className="font-display text-2xl tracking-wider">ВИНИЛ <span className="text-gold">LP</span> SEVAS</span>
         </Link>
 
-        <nav className="flex items-center gap-2">
+        <nav className="flex items-center gap-1 sm:gap-2">
           <Button asChild variant="ghost" size="sm">
             <Link to="/about">Обо мне</Link>
           </Button>
+          <CartDrawer />
           {isAdmin ? (
             <>
               <Button asChild variant="ghost" size="sm">
