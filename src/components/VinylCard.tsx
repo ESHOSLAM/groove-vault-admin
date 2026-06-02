@@ -22,8 +22,6 @@ export type Vinyl = {
 export function VinylCard({ v }: { v: Vinyl }) {
   const { add } = useCart();
   const [open, setOpen] = useState(false);
-  const cover = v.image_url;
-
 
   function addToCart(e?: React.MouseEvent) {
     e?.stopPropagation();
@@ -38,9 +36,9 @@ export function VinylCard({ v }: { v: Vinyl }) {
         className="group relative overflow-hidden rounded-xl bg-card border border-border/60 transition-all hover:border-primary/50 hover:-translate-y-1 hover:shadow-vinyl cursor-pointer"
       >
         <div className="aspect-square overflow-hidden bg-muted relative">
-          {cover ? (
+          {v.image_url ? (
             <img
-              src={cover}
+              src={v.image_url}
               alt={`${v.artist} — ${v.title}`}
               loading="lazy"
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -84,15 +82,14 @@ export function VinylCard({ v }: { v: Vinyl }) {
           </DialogHeader>
           <div className="grid md:grid-cols-2 gap-5">
             <div className="aspect-square overflow-hidden rounded-lg bg-muted">
-              {cover ? (
-                <img src={cover} alt={`${v.artist} — ${v.title}`} className="h-full w-full object-cover" />
+              {v.image_url ? (
+                <img src={v.image_url} alt={`${v.artist} — ${v.title}`} className="h-full w-full object-cover" />
               ) : (
                 <div className="flex h-full items-center justify-center">
                   <Disc3 className="h-24 w-24 text-muted-foreground" />
                 </div>
               )}
             </div>
-
             <div className="flex flex-col min-w-0">
               <p className="font-display text-3xl text-gold">{v.price.toLocaleString("ru-RU")} ₽</p>
               <p className="mt-1 text-sm text-muted-foreground">

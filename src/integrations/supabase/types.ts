@@ -44,7 +44,6 @@ export type Database = {
           genre: string
           id: string
           image_url: string | null
-          image_urls: string[]
           in_stock: boolean
           price: number
           title: string
@@ -59,7 +58,6 @@ export type Database = {
           genre: string
           id?: string
           image_url?: string | null
-          image_urls?: string[]
           in_stock?: boolean
           price?: number
           title: string
@@ -74,7 +72,6 @@ export type Database = {
           genre?: string
           id?: string
           image_url?: string | null
-          image_urls?: string[]
           in_stock?: boolean
           price?: number
           title?: string

@@ -1,1 +1,0 @@
-ALTER TABLE public.vinyls ADD COLUMN IF NOT EXISTS image_urls text[] NOT NULL DEFAULT '{}';

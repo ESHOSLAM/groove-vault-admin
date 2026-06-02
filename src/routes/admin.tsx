@@ -31,7 +31,7 @@ export const Route = createFileRoute("/admin")({
 type FormState = Omit<Vinyl, "id" | "in_stock"> & { id?: string; in_stock: boolean };
 
 const empty: FormState = {
-  title: "", artist: "", genre: "Классика", year: new Date().getFullYear(),
+  title: "", artist: "", genre: "Rock", year: new Date().getFullYear(),
   price: 0, condition: "NM", description: "", image_url: "", in_stock: true,
 };
 
@@ -74,7 +74,6 @@ function AdminPage() {
     }
   }
 
-
   useEffect(() => {
     const ok = typeof window !== "undefined" && sessionStorage.getItem("admin_access") === "true";
     setIsAdmin(ok);
@@ -99,8 +98,7 @@ function AdminPage() {
             title: editing.title, artist: editing.artist, genre: editing.genre,
             year: editing.year ?? null, price: editing.price,
             condition: editing.condition ?? null, description: editing.description ?? null,
-            image_url: editing.image_url || null,
-            in_stock: editing.in_stock,
+            image_url: editing.image_url ?? null, in_stock: editing.in_stock,
           },
         },
       });
@@ -162,12 +160,15 @@ function AdminPage() {
                     <div><Label>Название</Label><Input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} /></div>
                     <div>
                       <Label>Жанр</Label>
-                      <Select value={editing.genre} onValueChange={(val) => setEditing({ ...editing, genre: val })}>
-                        <SelectTrigger><SelectValue placeholder="Выберите жанр" /></SelectTrigger>
-                        <SelectContent>
-                          {GENRES.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <Input
+                        list="genres-list"
+                        value={editing.genre}
+                        onChange={(e) => setEditing({ ...editing, genre: e.target.value })}
+                        placeholder="Выберите или введите жанр"
+                      />
+                      <datalist id="genres-list">
+                        {GENRES.map((g) => <option key={g} value={g} />)}
+                      </datalist>
                     </div>
                     <div><Label>Год</Label><Input type="number" value={editing.year ?? ""} onChange={(e) => setEditing({ ...editing, year: e.target.value ? +e.target.value : null })} /></div>
                     <div><Label>Цена ₽</Label><Input type="number" value={editing.price} onChange={(e) => setEditing({ ...editing, price: +e.target.value })} /></div>
@@ -182,17 +183,22 @@ function AdminPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Фото</Label>
+                    <Label>Изображение</Label>
                     {editing.image_url && (
                       <img src={editing.image_url} alt="" className="h-32 w-32 object-cover rounded border border-border" />
                     )}
-                    <Button type="button" variant="outline" disabled={uploading} onClick={() => fileInputRef.current?.click()} className="w-full">
-                      {uploading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
-                      {editing.image_url ? "Заменить фото" : "Загрузить фото"}
-                    </Button>
-                    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="URL изображения или загрузите файл"
+                        value={editing.image_url ?? ""}
+                        onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
+                      />
+                      <Button type="button" variant="outline" size="icon" disabled={uploading} onClick={() => fileInputRef.current?.click()}>
+                        {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                      </Button>
+                      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+                    </div>
                   </div>
-
                   <div><Label>Описание</Label><Textarea value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></div>
                   <label className="flex items-center gap-2 text-sm">
                     <input type="checkbox" checked={editing.in_stock} onChange={(e) => setEditing({ ...editing, in_stock: e.target.checked })} />

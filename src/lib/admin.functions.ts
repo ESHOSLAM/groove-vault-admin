@@ -32,10 +32,10 @@ export const saveVinyl = createServerFn({ method: "POST" })
     assertAdmin(data.password);
     if (data.id) {
       const { error } = await supabaseAdmin.from("vinyls").update(data.data).eq("id", data.id);
-      if (error) { console.error("[saveVinyl] update error", error); throw new Error(error.message); }
+      if (error) throw new Error(error.message);
     } else {
       const { error } = await supabaseAdmin.from("vinyls").insert(data.data);
-      if (error) { console.error("[saveVinyl] insert error", error); throw new Error(error.message); }
+      if (error) throw new Error(error.message);
     }
     return { ok: true };
   });
