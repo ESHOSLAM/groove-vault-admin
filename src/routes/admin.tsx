@@ -28,11 +28,13 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-type FormState = Omit<Vinyl, "id" | "in_stock"> & { id?: string; in_stock: boolean };
+type FormState = Omit<Vinyl, "id" | "in_stock"> & { id?: string; in_stock: boolean; image_urls: string[] };
+
+const MAX_IMAGES = 4;
 
 const empty: FormState = {
   title: "", artist: "", genre: "Rock", year: new Date().getFullYear(),
-  price: 0, condition: "NM", description: "", image_url: "", in_stock: true,
+  price: 0, condition: "NM", description: "", image_url: "", image_urls: [], in_stock: true,
 };
 
 function AdminPage() {
@@ -56,15 +58,27 @@ function AdminPage() {
   }
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || !editing) return;
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length || !editing) return;
+    const slotsLeft = MAX_IMAGES - editing.image_urls.length;
+    if (slotsLeft <= 0) {
+      toast.error(`Максимум ${MAX_IMAGES} изображений`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    const toUpload = files.slice(0, slotsLeft);
     setUploading(true);
     try {
-      const fd = new FormData();
-      fd.append("password", getPassword());
-      fd.append("file", file);
-      const res = await uploadFn({ data: fd });
-      setEditing({ ...editing, image_url: res.url });
+      const urls: string[] = [];
+      for (const file of toUpload) {
+        const fd = new FormData();
+        fd.append("password", getPassword());
+        fd.append("file", file);
+        const res = await uploadFn({ data: fd });
+        urls.push(res.url);
+      }
+      const newUrls = [...editing.image_urls, ...urls].slice(0, MAX_IMAGES);
+      setEditing({ ...editing, image_urls: newUrls, image_url: newUrls[0] ?? "" });
       toast.success("Загружено");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Ошибка загрузки");
@@ -72,6 +86,24 @@ function AdminPage() {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
+  }
+
+  function removeImageAt(idx: number) {
+    if (!editing) return;
+    const newUrls = editing.image_urls.filter((_, i) => i !== idx);
+    setEditing({ ...editing, image_urls: newUrls, image_url: newUrls[0] ?? "" });
+  }
+
+  function addUrlImage(url: string) {
+    if (!editing) return;
+    const trimmed = url.trim();
+    if (!trimmed) return;
+    if (editing.image_urls.length >= MAX_IMAGES) {
+      toast.error(`Максимум ${MAX_IMAGES} изображений`);
+      return;
+    }
+    const newUrls = [...editing.image_urls, trimmed];
+    setEditing({ ...editing, image_urls: newUrls, image_url: newUrls[0] ?? "" });
   }
 
   useEffect(() => {
@@ -98,8 +130,8 @@ function AdminPage() {
             title: editing.title, artist: editing.artist, genre: editing.genre,
             year: editing.year ?? null, price: editing.price,
             condition: editing.condition ?? null, description: editing.description ?? null,
-            image_url: editing.image_url ?? null,
-            image_urls: editing.image_url ? [editing.image_url] : [],
+            image_url: editing.image_urls[0] ?? editing.image_url ?? null,
+            image_urls: editing.image_urls,
             in_stock: editing.in_stock,
           },
         },
@@ -182,35 +214,47 @@ function AdminPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Изображение</Label>
-                    {editing.image_url && (
-                      <div className="relative w-32">
-                        <img src={editing.image_url} alt="" className="aspect-square w-full object-cover rounded border border-border" />
-                        <button
-                          type="button"
-                          onClick={() => setEditing({ ...editing, image_url: "" })}
-                          className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full h-5 w-5 flex items-center justify-center text-xs"
-                        >
-                          ×
-                        </button>
+                    <Label>Изображения ({editing.image_urls.length}/{MAX_IMAGES})</Label>
+                    {editing.image_urls.length > 0 && (
+                      <div className="grid grid-cols-4 gap-2">
+                        {editing.image_urls.map((url, i) => (
+                          <div key={url + i} className="relative">
+                            <img src={url} alt="" className="aspect-square w-full object-cover rounded border border-border" />
+                            <button
+                              type="button"
+                              onClick={() => removeImageAt(i)}
+                              className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full h-5 w-5 flex items-center justify-center text-xs"
+                            >
+                              ×
+                            </button>
+                            {i === 0 && (
+                              <span className="absolute bottom-1 left-1 bg-background/80 text-foreground text-[10px] px-1 rounded">обложка</span>
+                            )}
+                          </div>
+                        ))}
                       </div>
                     )}
                     <div className="flex gap-2">
                       <Input
-                        placeholder="URL изображения"
-                        value={editing.image_url ?? ""}
-                        onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
+                        placeholder="URL изображения (Enter чтобы добавить)"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            addUrlImage((e.target as HTMLInputElement).value);
+                            (e.target as HTMLInputElement).value = "";
+                          }
+                        }}
                       />
                       <Button
                         type="button"
                         variant="outline"
                         size="icon"
-                        disabled={uploading}
+                        disabled={uploading || editing.image_urls.length >= MAX_IMAGES}
                         onClick={() => fileInputRef.current?.click()}
                       >
                         {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                       </Button>
-                      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+                      <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileUpload} />
                     </div>
                   </div>
                   <div><Label>Описание</Label><Textarea value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></div>
@@ -256,7 +300,7 @@ function AdminPage() {
                 <p className="font-medium truncate">{v.artist} — {v.title}</p>
                 <p className="text-sm text-gold">{v.price.toLocaleString("ru-RU")} ₽ · {v.in_stock ? "в наличии" : "нет"}</p>
               </div>
-              <Button size="sm" variant="outline" onClick={() => { setEditing({ ...v, in_stock: v.in_stock }); setOpen(true); }}>
+              <Button size="sm" variant="outline" onClick={() => { setEditing({ ...v, in_stock: v.in_stock, image_urls: (v.image_urls && v.image_urls.length > 0) ? v.image_urls : (v.image_url ? [v.image_url] : []) }); setOpen(true); }}>
                 <Pencil className="h-4 w-4" />
               </Button>
               <Button size="sm" variant="destructive" onClick={() => remove(v.id)}>
