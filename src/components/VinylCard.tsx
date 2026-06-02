@@ -29,6 +29,10 @@ export function getVinylImages(v: Vinyl): string[] {
 export function VinylCard({ v }: { v: Vinyl }) {
   const { add } = useCart();
   const [open, setOpen] = useState(false);
+  const images = getVinylImages(v);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const mainImage = images[0] ?? null;
+  const dialogImage = images[activeIdx] ?? mainImage;
 
   function addToCart(e?: React.MouseEvent) {
     e?.stopPropagation();
