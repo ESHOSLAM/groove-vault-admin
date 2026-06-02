@@ -83,31 +83,16 @@ export function VinylCard({ v }: { v: Vinyl }) {
             </DialogDescription>
           </DialogHeader>
           <div className="grid md:grid-cols-2 gap-5">
-            <div className="space-y-2">
-              <div className="aspect-square overflow-hidden rounded-lg bg-muted">
-                {images[active] ? (
-                  <img src={images[active]} alt={`${v.artist} — ${v.title}`} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="flex h-full items-center justify-center">
-                    <Disc3 className="h-24 w-24 text-muted-foreground" />
-                  </div>
-                )}
-              </div>
-              {images.length > 1 && (
-                <div className="grid grid-cols-5 gap-2">
-                  {images.map((src, i) => (
-                    <button
-                      key={src + i}
-                      type="button"
-                      onClick={() => setActive(i)}
-                      className={`aspect-square overflow-hidden rounded border ${i === active ? "border-gold" : "border-border"}`}
-                    >
-                      <img src={src} alt="" className="h-full w-full object-cover" />
-                    </button>
-                  ))}
+            <div className="aspect-square overflow-hidden rounded-lg bg-muted">
+              {cover ? (
+                <img src={cover} alt={`${v.artist} — ${v.title}`} className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full items-center justify-center">
+                  <Disc3 className="h-24 w-24 text-muted-foreground" />
                 </div>
               )}
             </div>
+
             <div className="flex flex-col min-w-0">
               <p className="font-display text-3xl text-gold">{v.price.toLocaleString("ru-RU")} ₽</p>
               <p className="mt-1 text-sm text-muted-foreground">
