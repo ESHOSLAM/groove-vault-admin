@@ -160,10 +160,15 @@ export function CartDrawer() {
               <Send className="h-4 w-4" />
               Написать продавцу
             </Button>
+            <Button className="w-full" size="lg" variant="secondary" onClick={sendToSellerVk}>
+              <VkIcon />
+              Написать продавцу в ВК
+            </Button>
             <Button variant="ghost" className="w-full" onClick={() => setConfirmOpen(false)}>
               Назад к корзине
             </Button>
           </DialogFooter>
+
         </DialogContent>
       </Dialog>
     </>
