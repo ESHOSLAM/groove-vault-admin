@@ -43,9 +43,9 @@ export function VinylCard({ v }: { v: Vinyl }) {
         className="group relative overflow-hidden rounded-xl bg-card border border-border/60 transition-all hover:border-primary/50 hover:-translate-y-1 hover:shadow-vinyl cursor-pointer"
       >
         <div className="aspect-square overflow-hidden bg-muted relative">
-          {v.image_url ? (
+          {cover ? (
             <img
-              src={v.image_url}
+              src={cover}
               alt={`${v.artist} — ${v.title}`}
               loading="lazy"
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
