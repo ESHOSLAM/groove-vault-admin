@@ -32,7 +32,7 @@ type FormState = Omit<Vinyl, "id" | "in_stock"> & { id?: string; in_stock: boole
 
 const empty: FormState = {
   title: "", artist: "", genre: "Классика", year: new Date().getFullYear(),
-  price: 0, condition: "NM", description: "", image_url: "", image_urls: [], in_stock: true,
+  price: 0, condition: "NM", description: "", image_url: "", in_stock: true,
 };
 
 function AdminPage() {
@@ -56,35 +56,24 @@ function AdminPage() {
   }
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
-    console.log("[upload] files selected:", files.length, files.map((f) => f.name));
-    if (!files.length || !editing) return;
+    const file = e.target.files?.[0];
+    if (!file || !editing) return;
     setUploading(true);
-    const existing = editing.image_urls ?? (editing.image_url ? [editing.image_url] : []);
-    const uploaded: string[] = [];
     try {
-      for (const file of files) {
-        const fd = new FormData();
-        fd.append("password", getPassword());
-        fd.append("file", file);
-        try {
-          const res = await uploadFn({ data: fd });
-          console.log("[upload] ok:", file.name, res.url);
-          uploaded.push(res.url);
-        } catch (err) {
-          console.error("[upload] failed:", file.name, err);
-          toast.error(`${file.name}: ${err instanceof Error ? err.message : "ошибка"}`);
-        }
-      }
-      const all = [...existing, ...uploaded];
-      console.log("[upload] total now:", all.length);
-      setEditing({ ...editing, image_urls: all, image_url: editing.image_url || all[0] || "" });
-      if (uploaded.length) toast.success(`Загружено: ${uploaded.length}`);
+      const fd = new FormData();
+      fd.append("password", getPassword());
+      fd.append("file", file);
+      const res = await uploadFn({ data: fd });
+      setEditing({ ...editing, image_url: res.url });
+      toast.success("Фото загружено");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Ошибка загрузки");
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   }
+
 
   useEffect(() => {
     const ok = typeof window !== "undefined" && sessionStorage.getItem("admin_access") === "true";
