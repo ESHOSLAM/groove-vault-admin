@@ -188,21 +188,30 @@ function AdminPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Изображение</Label>
-                    {editing.image_url && (
-                      <img src={editing.image_url} alt="" className="h-32 w-32 object-cover rounded border border-border" />
+                    <Label>Фотографии</Label>
+                    {(editing.image_urls?.length ?? 0) > 0 && (
+                      <div className="grid grid-cols-4 gap-2">
+                        {editing.image_urls!.map((url, idx) => (
+                          <div key={url + idx} className="relative group">
+                            <img src={url} alt="" className="aspect-square w-full object-cover rounded border border-border" />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const next = (editing.image_urls ?? []).filter((_, i) => i !== idx);
+                                setEditing({ ...editing, image_urls: next, image_url: next[0] ?? "" });
+                              }}
+                              className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full h-5 w-5 text-xs leading-none"
+                              aria-label="Удалить"
+                            >×</button>
+                          </div>
+                        ))}
+                      </div>
                     )}
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="URL изображения или загрузите файл"
-                        value={editing.image_url ?? ""}
-                        onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
-                      />
-                      <Button type="button" variant="outline" size="icon" disabled={uploading} onClick={() => fileInputRef.current?.click()}>
-                        {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                      </Button>
-                      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
-                    </div>
+                    <Button type="button" variant="outline" disabled={uploading} onClick={() => fileInputRef.current?.click()} className="w-full">
+                      {uploading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
+                      Загрузить фото (можно несколько)
+                    </Button>
+                    <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileUpload} />
                   </div>
                   <div><Label>Описание</Label><Textarea value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></div>
                   <label className="flex items-center gap-2 text-sm">
