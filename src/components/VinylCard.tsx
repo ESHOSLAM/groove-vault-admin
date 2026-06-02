@@ -47,9 +47,9 @@ export function VinylCard({ v }: { v: Vinyl }) {
         className="group relative overflow-hidden rounded-xl bg-card border border-border/60 transition-all hover:border-primary/50 hover:-translate-y-1 hover:shadow-vinyl cursor-pointer"
       >
         <div className="aspect-square overflow-hidden bg-muted relative">
-          {v.image_url ? (
+          {mainImage ? (
             <img
-              src={v.image_url}
+              src={mainImage}
               alt={`${v.artist} — ${v.title}`}
               loading="lazy"
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -62,6 +62,11 @@ export function VinylCard({ v }: { v: Vinyl }) {
           <Badge className="absolute top-3 left-3 bg-background/80 backdrop-blur text-foreground border-border">
             {v.genre}
           </Badge>
+          {images.length > 1 && (
+            <Badge className="absolute top-3 right-3 bg-background/80 backdrop-blur text-foreground border-border">
+              +{images.length - 1}
+            </Badge>
+          )}
           {!v.in_stock && (
             <div className="absolute inset-0 bg-background/70 flex items-center justify-center">
               <span className="font-display text-2xl tracking-wider">НЕТ В НАЛИЧИИ</span>
