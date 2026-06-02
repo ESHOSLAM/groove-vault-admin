@@ -116,7 +116,9 @@ function AdminPage() {
             title: editing.title, artist: editing.artist, genre: editing.genre,
             year: editing.year ?? null, price: editing.price,
             condition: editing.condition ?? null, description: editing.description ?? null,
-            image_url: editing.image_url ?? null, in_stock: editing.in_stock,
+            image_url: editing.image_urls[0] ?? editing.image_url ?? null,
+            image_urls: editing.image_urls,
+            in_stock: editing.in_stock,
           },
         },
       });
