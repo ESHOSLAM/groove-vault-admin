@@ -56,27 +56,15 @@ function AdminPage() {
   }
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
-    if (!files.length || !editing) return;
-    const slotsLeft = MAX_IMAGES - editing.image_urls.length;
-    if (slotsLeft <= 0) {
-      toast.error(`Максимум ${MAX_IMAGES} изображений`);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      return;
-    }
-    const toUpload = files.slice(0, slotsLeft);
+    const file = e.target.files?.[0];
+    if (!file || !editing) return;
     setUploading(true);
     try {
-      const urls: string[] = [];
-      for (const file of toUpload) {
-        const fd = new FormData();
-        fd.append("password", getPassword());
-        fd.append("file", file);
-        const res = await uploadFn({ data: fd });
-        urls.push(res.url);
-      }
-      const newUrls = [...editing.image_urls, ...urls].slice(0, MAX_IMAGES);
-      setEditing({ ...editing, image_urls: newUrls, image_url: newUrls[0] ?? "" });
+      const fd = new FormData();
+      fd.append("password", getPassword());
+      fd.append("file", file);
+      const res = await uploadFn({ data: fd });
+      setEditing({ ...editing, image_url: res.url });
       toast.success("Загружено");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Ошибка загрузки");
@@ -84,24 +72,6 @@ function AdminPage() {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
-  }
-
-  function removeImageAt(idx: number) {
-    if (!editing) return;
-    const newUrls = editing.image_urls.filter((_, i) => i !== idx);
-    setEditing({ ...editing, image_urls: newUrls, image_url: newUrls[0] ?? "" });
-  }
-
-  function addUrlImage(url: string) {
-    if (!editing) return;
-    const trimmed = url.trim();
-    if (!trimmed) return;
-    if (editing.image_urls.length >= MAX_IMAGES) {
-      toast.error(`Максимум ${MAX_IMAGES} изображений`);
-      return;
-    }
-    const newUrls = [...editing.image_urls, trimmed];
-    setEditing({ ...editing, image_urls: newUrls, image_url: newUrls[0] ?? "" });
   }
 
   useEffect(() => {
