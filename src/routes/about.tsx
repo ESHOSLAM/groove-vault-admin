@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Disc3, Music, Heart, Mail } from "lucide-react";
+import { Disc3, Music, Heart, Mail, Users, Droplets, Truck, RefreshCw } from "lucide-react";
 import { Header } from "@/components/Header";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "Обо мне — ГРАМПЛАСТ" },
-      { name: "description", content: "Коллекционер винила, меломан и хранитель звукового наследия." },
+      { title: "Обо мне — ВИНИЛ LP SEVAS" },
+      { name: "description", content: "Коллекция более 2000 LP. Личные встречи, мойка винила, отправка по всей России." },
     ],
   }),
   component: AboutPage,
@@ -23,47 +23,44 @@ function AboutPage() {
         </div>
 
         <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-          Привет! Меня зовут коллекционер винила. Уже более 15 лет я собираю,
-          реставрирую и продаю виниловые пластинки — от редких пресcингов 60-х
-          до свежих переизданий любимых альбомов.
+          Привет! Я коллекционер винила. В моей коллекции более 2000 пластинок —
+          от редких изданий до современных переизданий.
         </p>
 
-        <div className="grid sm:grid-cols-3 gap-4 mb-10">
+        <div className="grid sm:grid-cols-2 gap-4 mb-10">
           <div className="bg-card border border-border rounded-lg p-5">
             <Music className="h-6 w-6 text-gold mb-2" />
-            <p className="font-display text-2xl">500+</p>
+            <p className="font-display text-2xl">2000+</p>
             <p className="text-sm text-muted-foreground">пластинок в коллекции</p>
           </div>
           <div className="bg-card border border-border rounded-lg p-5">
-            <Heart className="h-6 w-6 text-gold mb-2" />
-            <p className="font-display text-2xl">15 лет</p>
-            <p className="text-sm text-muted-foreground">в мире винила</p>
+            <Users className="h-6 w-6 text-gold mb-2" />
+            <p className="font-display text-lg">Личная встреча</p>
+            <p className="text-sm text-muted-foreground">можно посмотреть весь винил вживую</p>
           </div>
           <div className="bg-card border border-border rounded-lg p-5">
-            <Disc3 className="h-6 w-6 text-gold mb-2" />
-            <p className="font-display text-2xl">100%</p>
-            <p className="text-sm text-muted-foreground">проверенное состояние</p>
+            <Droplets className="h-6 w-6 text-gold mb-2" />
+            <p className="font-display text-lg">Мойка винила</p>
+            <p className="text-sm text-muted-foreground">каждую пластинку мою лично</p>
+          </div>
+          <div className="bg-card border border-border rounded-lg p-5">
+            <Truck className="h-6 w-6 text-gold mb-2" />
+            <p className="font-display text-lg">Доставка</p>
+            <p className="text-sm text-muted-foreground">отправка по всей России</p>
+          </div>
+          <div className="bg-card border border-border rounded-lg p-5 sm:col-span-2">
+            <RefreshCw className="h-6 w-6 text-gold mb-2" />
+            <p className="font-display text-lg">Пополнения каждые 1–2 недели</p>
+            <p className="text-sm text-muted-foreground">регулярно появляются новые пластинки</p>
           </div>
         </div>
-
-        <h2 className="font-display text-2xl tracking-wide mb-3">МОЯ ИСТОРИЯ</h2>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          Всё началось с пластинки Pink Floyd, найденной на чердаке у бабушки.
-          С того дня поиск редких изданий, тёплого звука и историй за каждым
-          конвертом стал моей страстью. Здесь я делюсь тем, что собрал за годы
-          охоты по барахолкам, частным коллекциям и аукционам.
-        </p>
-        <p className="text-muted-foreground leading-relaxed mb-8">
-          Каждая пластинка в каталоге проверена, очищена и описана честно.
-          Никаких сюрпризов — только настоящий аналоговый звук.
-        </p>
 
         <div className="bg-card border border-border rounded-lg p-6 flex items-center gap-4">
           <Mail className="h-8 w-8 text-primary flex-shrink-0" />
           <div>
             <p className="font-medium mb-1">Связаться со мной</p>
             <p className="text-sm text-muted-foreground">
-              По вопросам покупки, обмена или оценки — пишите на почту или в личные сообщения.
+              По вопросам покупки, личной встречи или отправки — пишите в Telegram @Selling_vinyl_LP.
             </p>
           </div>
         </div>
