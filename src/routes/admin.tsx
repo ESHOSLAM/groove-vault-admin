@@ -32,7 +32,7 @@ type FormState = Omit<Vinyl, "id" | "in_stock"> & { id?: string; in_stock: boole
 
 const empty: FormState = {
   title: "", artist: "", genre: "Классика", year: new Date().getFullYear(),
-  price: 0, condition: "NM", description: "", image_url: "", image_urls: [], in_stock: true,
+  price: 0, condition: "NM", description: "", image_url: "", in_stock: true,
 };
 
 function AdminPage() {
@@ -56,35 +56,24 @@ function AdminPage() {
   }
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
-    console.log("[upload] files selected:", files.length, files.map((f) => f.name));
-    if (!files.length || !editing) return;
+    const file = e.target.files?.[0];
+    if (!file || !editing) return;
     setUploading(true);
-    const existing = editing.image_urls ?? (editing.image_url ? [editing.image_url] : []);
-    const uploaded: string[] = [];
     try {
-      for (const file of files) {
-        const fd = new FormData();
-        fd.append("password", getPassword());
-        fd.append("file", file);
-        try {
-          const res = await uploadFn({ data: fd });
-          console.log("[upload] ok:", file.name, res.url);
-          uploaded.push(res.url);
-        } catch (err) {
-          console.error("[upload] failed:", file.name, err);
-          toast.error(`${file.name}: ${err instanceof Error ? err.message : "ошибка"}`);
-        }
-      }
-      const all = [...existing, ...uploaded];
-      console.log("[upload] total now:", all.length);
-      setEditing({ ...editing, image_urls: all, image_url: editing.image_url || all[0] || "" });
-      if (uploaded.length) toast.success(`Загружено: ${uploaded.length}`);
+      const fd = new FormData();
+      fd.append("password", getPassword());
+      fd.append("file", file);
+      const res = await uploadFn({ data: fd });
+      setEditing({ ...editing, image_url: res.url });
+      toast.success("Фото загружено");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Ошибка загрузки");
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   }
+
 
   useEffect(() => {
     const ok = typeof window !== "undefined" && sessionStorage.getItem("admin_access") === "true";
@@ -110,8 +99,7 @@ function AdminPage() {
             title: editing.title, artist: editing.artist, genre: editing.genre,
             year: editing.year ?? null, price: editing.price,
             condition: editing.condition ?? null, description: editing.description ?? null,
-            image_url: (editing.image_urls && editing.image_urls[0]) || editing.image_url || null,
-            image_urls: editing.image_urls ?? [],
+            image_url: editing.image_url || null,
             in_stock: editing.in_stock,
           },
         },
@@ -194,31 +182,17 @@ function AdminPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Фотографии</Label>
-                    {(editing.image_urls?.length ?? 0) > 0 && (
-                      <div className="grid grid-cols-4 gap-2">
-                        {editing.image_urls!.map((url, idx) => (
-                          <div key={url + idx} className="relative group">
-                            <img src={url} alt="" className="aspect-square w-full object-cover rounded border border-border" />
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const next = (editing.image_urls ?? []).filter((_, i) => i !== idx);
-                                setEditing({ ...editing, image_urls: next, image_url: next[0] ?? "" });
-                              }}
-                              className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full h-5 w-5 text-xs leading-none"
-                              aria-label="Удалить"
-                            >×</button>
-                          </div>
-                        ))}
-                      </div>
+                    <Label>Фото</Label>
+                    {editing.image_url && (
+                      <img src={editing.image_url} alt="" className="h-32 w-32 object-cover rounded border border-border" />
                     )}
                     <Button type="button" variant="outline" disabled={uploading} onClick={() => fileInputRef.current?.click()} className="w-full">
                       {uploading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
-                      Загрузить фото (можно несколько)
+                      {editing.image_url ? "Заменить фото" : "Загрузить фото"}
                     </Button>
-                    <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileUpload} />
+                    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
                   </div>
+
                   <div><Label>Описание</Label><Textarea value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></div>
                   <label className="flex items-center gap-2 text-sm">
                     <input type="checkbox" checked={editing.in_stock} onChange={(e) => setEditing({ ...editing, in_stock: e.target.checked })} />
@@ -262,7 +236,7 @@ function AdminPage() {
                 <p className="font-medium truncate">{v.artist} — {v.title}</p>
                 <p className="text-sm text-gold">{v.price.toLocaleString("ru-RU")} ₽ · {v.in_stock ? "в наличии" : "нет"}</p>
               </div>
-              <Button size="sm" variant="outline" onClick={() => { setEditing({ ...v, in_stock: v.in_stock, image_urls: v.image_urls ?? (v.image_url ? [v.image_url] : []) }); setOpen(true); }}>
+              <Button size="sm" variant="outline" onClick={() => { setEditing({ ...v, in_stock: v.in_stock }); setOpen(true); }}>
                 <Pencil className="h-4 w-4" />
               </Button>
               <Button size="sm" variant="destructive" onClick={() => remove(v.id)}>
