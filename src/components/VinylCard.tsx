@@ -16,6 +16,7 @@ export type Vinyl = {
   condition: string | null;
   description: string | null;
   image_url: string | null;
+  image_urls?: string[] | null;
   in_stock: boolean;
 };
 
