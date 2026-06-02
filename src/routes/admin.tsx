@@ -256,7 +256,7 @@ function AdminPage() {
                 <p className="font-medium truncate">{v.artist} — {v.title}</p>
                 <p className="text-sm text-gold">{v.price.toLocaleString("ru-RU")} ₽ · {v.in_stock ? "в наличии" : "нет"}</p>
               </div>
-              <Button size="sm" variant="outline" onClick={() => { setEditing({ ...v, in_stock: v.in_stock, image_urls: (v.image_urls && v.image_urls.length > 0) ? v.image_urls : (v.image_url ? [v.image_url] : []) }); setOpen(true); }}>
+              <Button size="sm" variant="outline" onClick={() => { setEditing({ ...v, in_stock: v.in_stock }); setOpen(true); }}>
                 <Pencil className="h-4 w-4" />
               </Button>
               <Button size="sm" variant="destructive" onClick={() => remove(v.id)}>
