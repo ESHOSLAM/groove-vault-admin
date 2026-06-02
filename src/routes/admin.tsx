@@ -65,7 +65,7 @@ function AdminPage() {
     toast.success("Удалено"); refresh();
   }
 
-  if (loading) {
+  if (isAdmin === null) {
     return <div className="min-h-screen flex items-center justify-center"><Disc3 className="h-10 w-10 text-primary vinyl-spin" /></div>;
   }
   if (!isAdmin) {
