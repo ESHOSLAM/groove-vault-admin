@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Pencil, Plus, Trash2, Disc3 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Pencil, Plus, Trash2, Disc3, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
