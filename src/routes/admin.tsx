@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Pencil, Plus, Trash2, Disc3 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Pencil, Plus, Trash2, Disc3, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
@@ -29,6 +29,35 @@ function AdminPage() {
   const [vinyls, setVinyls] = useState<Vinyl[]>([]);
   const [editing, setEditing] = useState<FormState | null>(null);
   const [open, setOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !editing) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("vinyl-images").upload(path, file, {
+        cacheControl: "31536000",
+        upsert: false,
+      });
+      if (upErr) throw upErr;
+      const { data, error: sErr } = await supabase.storage
+        .from("vinyl-images")
+        .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+      if (sErr || !data) throw sErr ?? new Error("Не удалось получить URL");
+      setEditing({ ...editing, image_url: data.signedUrl });
+      toast.success("Фото загружено");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Ошибка загрузки");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
 
   useEffect(() => {
     const ok = typeof window !== "undefined" && sessionStorage.getItem("admin_access") === "true";
@@ -109,7 +138,23 @@ function AdminPage() {
                     <div><Label>Цена ₽</Label><Input type="number" value={editing.price} onChange={(e) => setEditing({ ...editing, price: +e.target.value })} /></div>
                     <div><Label>Состояние</Label><Input value={editing.condition ?? ""} onChange={(e) => setEditing({ ...editing, condition: e.target.value })} /></div>
                   </div>
-                  <div><Label>URL изображения</Label><Input value={editing.image_url ?? ""} onChange={(e) => setEditing({ ...editing, image_url: e.target.value })} /></div>
+                  <div className="space-y-2">
+                    <Label>Изображение</Label>
+                    {editing.image_url && (
+                      <img src={editing.image_url} alt="" className="h-32 w-32 object-cover rounded border border-border" />
+                    )}
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="URL изображения или загрузите файл"
+                        value={editing.image_url ?? ""}
+                        onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
+                      />
+                      <Button type="button" variant="outline" size="icon" disabled={uploading} onClick={() => fileInputRef.current?.click()}>
+                        {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                      </Button>
+                      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+                    </div>
+                  </div>
                   <div><Label>Описание</Label><Textarea value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></div>
                   <label className="flex items-center gap-2 text-sm">
                     <input type="checkbox" checked={editing.in_stock} onChange={(e) => setEditing({ ...editing, in_stock: e.target.checked })} />

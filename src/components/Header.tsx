@@ -33,6 +33,9 @@ export function Header() {
         </Link>
 
         <nav className="flex items-center gap-2">
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/about">Обо мне</Link>
+          </Button>
           {isAdmin ? (
             <>
               <Button asChild variant="ghost" size="sm">
