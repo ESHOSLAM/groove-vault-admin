@@ -20,9 +20,11 @@ export function Header() {
 
   function logout() {
     sessionStorage.removeItem("admin_access");
+    sessionStorage.removeItem("admin_password");
     window.dispatchEvent(new Event("admin-access-changed"));
     navigate({ to: "/" });
   }
+
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">

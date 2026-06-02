@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Pencil, Plus, Trash2, Disc3, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { saveVinyl, deleteVinyl, uploadVinylImage } from "@/lib/admin.functions";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,23 +34,26 @@ function AdminPage() {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const saveVinylFn = useServerFn(saveVinyl);
+  const deleteVinylFn = useServerFn(deleteVinyl);
+  const uploadFn = useServerFn(uploadVinylImage);
+
+  function getPassword(): string {
+    const p = sessionStorage.getItem("admin_password");
+    if (!p) throw new Error("Сессия истекла, войдите снова");
+    return p;
+  }
+
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || !editing) return;
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop() || "jpg";
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("vinyl-images").upload(path, file, {
-        cacheControl: "31536000",
-        upsert: false,
-      });
-      if (upErr) throw upErr;
-      const { data, error: sErr } = await supabase.storage
-        .from("vinyl-images")
-        .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
-      if (sErr || !data) throw sErr ?? new Error("Не удалось получить URL");
-      setEditing({ ...editing, image_url: data.signedUrl });
+      const fd = new FormData();
+      fd.append("password", getPassword());
+      fd.append("file", file);
+      const res = await uploadFn({ data: fd });
+      setEditing({ ...editing, image_url: res.url });
       toast.success("Фото загружено");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Ошибка загрузки");
@@ -57,7 +62,6 @@ function AdminPage() {
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   }
-
 
   useEffect(() => {
     const ok = typeof window !== "undefined" && sessionStorage.getItem("admin_access") === "true";
@@ -74,24 +78,34 @@ function AdminPage() {
 
   async function save() {
     if (!editing) return;
-    const payload = {
-      title: editing.title, artist: editing.artist, genre: editing.genre,
-      year: editing.year, price: editing.price, condition: editing.condition,
-      description: editing.description, image_url: editing.image_url, in_stock: editing.in_stock,
-    };
-    const { error } = editing.id
-      ? await supabase.from("vinyls").update(payload).eq("id", editing.id)
-      : await supabase.from("vinyls").insert(payload);
-    if (error) { toast.error(error.message); return; }
-    toast.success(editing.id ? "Обновлено" : "Добавлено");
-    setOpen(false); setEditing(null); refresh();
+    try {
+      await saveVinylFn({
+        data: {
+          password: getPassword(),
+          id: editing.id,
+          data: {
+            title: editing.title, artist: editing.artist, genre: editing.genre,
+            year: editing.year ?? null, price: editing.price,
+            condition: editing.condition ?? null, description: editing.description ?? null,
+            image_url: editing.image_url ?? null, in_stock: editing.in_stock,
+          },
+        },
+      });
+      toast.success(editing.id ? "Обновлено" : "Добавлено");
+      setOpen(false); setEditing(null); refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Ошибка сохранения");
+    }
   }
 
   async function remove(id: string) {
     if (!confirm("Удалить пластинку?")) return;
-    const { error } = await supabase.from("vinyls").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Удалено"); refresh();
+    try {
+      await deleteVinylFn({ data: { password: getPassword(), id } });
+      toast.success("Удалено"); refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Ошибка удаления");
+    }
   }
 
   if (isAdmin === null) {

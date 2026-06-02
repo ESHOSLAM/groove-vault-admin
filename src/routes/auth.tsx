@@ -23,6 +23,8 @@ function AuthPage() {
     setLoading(true);
     if (password === ADMIN_PASSWORD) {
       sessionStorage.setItem("admin_access", "true");
+      sessionStorage.setItem("admin_password", password);
+      window.dispatchEvent(new Event("admin-access-changed"));
       toast.success("Добро пожаловать, администратор!");
       navigate({ to: "/admin" });
     } else {
