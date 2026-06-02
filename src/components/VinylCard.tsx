@@ -16,12 +16,19 @@ export type Vinyl = {
   condition: string | null;
   description: string | null;
   image_url: string | null;
+  image_urls?: string[] | null;
   in_stock: boolean;
 };
 
 export function VinylCard({ v }: { v: Vinyl }) {
   const { add } = useCart();
   const [open, setOpen] = useState(false);
+  const images = [
+    ...(v.image_urls ?? []),
+    ...(v.image_url && !(v.image_urls ?? []).includes(v.image_url) ? [v.image_url] : []),
+  ];
+  const cover = images[0] ?? v.image_url ?? null;
+  const [active, setActive] = useState(0);
 
   function addToCart(e?: React.MouseEvent) {
     e?.stopPropagation();
@@ -36,9 +43,9 @@ export function VinylCard({ v }: { v: Vinyl }) {
         className="group relative overflow-hidden rounded-xl bg-card border border-border/60 transition-all hover:border-primary/50 hover:-translate-y-1 hover:shadow-vinyl cursor-pointer"
       >
         <div className="aspect-square overflow-hidden bg-muted relative">
-          {v.image_url ? (
+          {cover ? (
             <img
-              src={v.image_url}
+              src={cover}
               alt={`${v.artist} — ${v.title}`}
               loading="lazy"
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -81,12 +88,28 @@ export function VinylCard({ v }: { v: Vinyl }) {
             </DialogDescription>
           </DialogHeader>
           <div className="grid md:grid-cols-2 gap-5">
-            <div className="aspect-square overflow-hidden rounded-lg bg-muted">
-              {v.image_url ? (
-                <img src={v.image_url} alt={`${v.artist} — ${v.title}`} className="h-full w-full object-cover" />
-              ) : (
-                <div className="flex h-full items-center justify-center">
-                  <Disc3 className="h-24 w-24 text-muted-foreground" />
+            <div className="space-y-2">
+              <div className="aspect-square overflow-hidden rounded-lg bg-muted">
+                {images[active] ? (
+                  <img src={images[active]} alt={`${v.artist} — ${v.title}`} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <Disc3 className="h-24 w-24 text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+              {images.length > 1 && (
+                <div className="grid grid-cols-5 gap-2">
+                  {images.map((src, i) => (
+                    <button
+                      key={src + i}
+                      type="button"
+                      onClick={() => setActive(i)}
+                      className={`aspect-square overflow-hidden rounded border ${i === active ? "border-gold" : "border-border"}`}
+                    >
+                      <img src={src} alt="" className="h-full w-full object-cover" />
+                    </button>
+                  ))}
                 </div>
               )}
             </div>

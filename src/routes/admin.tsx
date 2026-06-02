@@ -31,8 +31,8 @@ export const Route = createFileRoute("/admin")({
 type FormState = Omit<Vinyl, "id" | "in_stock"> & { id?: string; in_stock: boolean };
 
 const empty: FormState = {
-  title: "", artist: "", genre: "Rock", year: new Date().getFullYear(),
-  price: 0, condition: "NM", description: "", image_url: "", in_stock: true,
+  title: "", artist: "", genre: "Классика", year: new Date().getFullYear(),
+  price: 0, condition: "NM", description: "", image_url: "", image_urls: [], in_stock: true,
 };
 
 function AdminPage() {
@@ -56,16 +56,22 @@ function AdminPage() {
   }
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || !editing) return;
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length || !editing) return;
     setUploading(true);
     try {
-      const fd = new FormData();
-      fd.append("password", getPassword());
-      fd.append("file", file);
-      const res = await uploadFn({ data: fd });
-      setEditing({ ...editing, image_url: res.url });
-      toast.success("Фото загружено");
+      const existing = editing.image_urls ?? [];
+      const uploaded: string[] = [];
+      for (const file of files) {
+        const fd = new FormData();
+        fd.append("password", getPassword());
+        fd.append("file", file);
+        const res = await uploadFn({ data: fd });
+        uploaded.push(res.url);
+      }
+      const all = [...existing, ...uploaded];
+      setEditing({ ...editing, image_urls: all, image_url: editing.image_url || all[0] });
+      toast.success(`Загружено: ${uploaded.length}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Ошибка загрузки");
     } finally {
@@ -98,7 +104,9 @@ function AdminPage() {
             title: editing.title, artist: editing.artist, genre: editing.genre,
             year: editing.year ?? null, price: editing.price,
             condition: editing.condition ?? null, description: editing.description ?? null,
-            image_url: editing.image_url ?? null, in_stock: editing.in_stock,
+            image_url: (editing.image_urls && editing.image_urls[0]) || editing.image_url || null,
+            image_urls: editing.image_urls ?? [],
+            in_stock: editing.in_stock,
           },
         },
       });
@@ -160,15 +168,12 @@ function AdminPage() {
                     <div><Label>Название</Label><Input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} /></div>
                     <div>
                       <Label>Жанр</Label>
-                      <Input
-                        list="genres-list"
-                        value={editing.genre}
-                        onChange={(e) => setEditing({ ...editing, genre: e.target.value })}
-                        placeholder="Выберите или введите жанр"
-                      />
-                      <datalist id="genres-list">
-                        {GENRES.map((g) => <option key={g} value={g} />)}
-                      </datalist>
+                      <Select value={editing.genre} onValueChange={(val) => setEditing({ ...editing, genre: val })}>
+                        <SelectTrigger><SelectValue placeholder="Выберите жанр" /></SelectTrigger>
+                        <SelectContent>
+                          {GENRES.map((g) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div><Label>Год</Label><Input type="number" value={editing.year ?? ""} onChange={(e) => setEditing({ ...editing, year: e.target.value ? +e.target.value : null })} /></div>
                     <div><Label>Цена ₽</Label><Input type="number" value={editing.price} onChange={(e) => setEditing({ ...editing, price: +e.target.value })} /></div>
@@ -183,21 +188,30 @@ function AdminPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Изображение</Label>
-                    {editing.image_url && (
-                      <img src={editing.image_url} alt="" className="h-32 w-32 object-cover rounded border border-border" />
+                    <Label>Фотографии</Label>
+                    {(editing.image_urls?.length ?? 0) > 0 && (
+                      <div className="grid grid-cols-4 gap-2">
+                        {editing.image_urls!.map((url, idx) => (
+                          <div key={url + idx} className="relative group">
+                            <img src={url} alt="" className="aspect-square w-full object-cover rounded border border-border" />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const next = (editing.image_urls ?? []).filter((_, i) => i !== idx);
+                                setEditing({ ...editing, image_urls: next, image_url: next[0] ?? "" });
+                              }}
+                              className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full h-5 w-5 text-xs leading-none"
+                              aria-label="Удалить"
+                            >×</button>
+                          </div>
+                        ))}
+                      </div>
                     )}
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="URL изображения или загрузите файл"
-                        value={editing.image_url ?? ""}
-                        onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
-                      />
-                      <Button type="button" variant="outline" size="icon" disabled={uploading} onClick={() => fileInputRef.current?.click()}>
-                        {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                      </Button>
-                      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
-                    </div>
+                    <Button type="button" variant="outline" disabled={uploading} onClick={() => fileInputRef.current?.click()} className="w-full">
+                      {uploading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
+                      Загрузить фото (можно несколько)
+                    </Button>
+                    <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileUpload} />
                   </div>
                   <div><Label>Описание</Label><Textarea value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></div>
                   <label className="flex items-center gap-2 text-sm">
@@ -242,7 +256,7 @@ function AdminPage() {
                 <p className="font-medium truncate">{v.artist} — {v.title}</p>
                 <p className="text-sm text-gold">{v.price.toLocaleString("ru-RU")} ₽ · {v.in_stock ? "в наличии" : "нет"}</p>
               </div>
-              <Button size="sm" variant="outline" onClick={() => { setEditing({ ...v, in_stock: v.in_stock }); setOpen(true); }}>
+              <Button size="sm" variant="outline" onClick={() => { setEditing({ ...v, in_stock: v.in_stock, image_urls: v.image_urls ?? (v.image_url ? [v.image_url] : []) }); setOpen(true); }}>
                 <Pencil className="h-4 w-4" />
               </Button>
               <Button size="sm" variant="destructive" onClick={() => remove(v.id)}>
