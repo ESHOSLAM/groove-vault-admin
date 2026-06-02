@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Disc3 } from "lucide-react";
+import { Disc3, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
+import { Input } from "@/components/ui/input";
 import { VinylCard, type Vinyl } from "@/components/VinylCard";
 
 
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [vinyls, setVinyls] = useState<Vinyl[]>([]);
   const [genre, setGenre] = useState<string>("Все");
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,7 +38,18 @@ function Index() {
     return ["Все", ...Array.from(set)];
   }, [vinyls]);
 
-  const filtered = genre === "Все" ? vinyls : vinyls.filter((v) => v.genre === genre);
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return vinyls.filter((v) => {
+      if (genre !== "Все" && v.genre !== genre) return false;
+      if (!q) return true;
+      return (
+        v.title.toLowerCase().includes(q) ||
+        v.artist.toLowerCase().includes(q) ||
+        v.genre.toLowerCase().includes(q)
+      );
+    });
+  }, [vinyls, genre, query]);
   const byGenre = useMemo(() => {
     const groups: Record<string, Vinyl[]> = {};
     for (const v of vinyls) (groups[v.genre] ??= []).push(v);
@@ -55,7 +68,16 @@ function Index() {
             <h2 className="font-display text-4xl tracking-wide">КАТАЛОГ</h2>
             <p className="text-muted-foreground text-sm mt-1">Все пластинки в наличии</p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Поиск..."
+                className="pl-9 h-9 w-48 rounded-full"
+              />
+            </div>
             {genres.map((g) => (
               <button
                 key={g}

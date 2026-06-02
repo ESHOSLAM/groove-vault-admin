@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Pencil, Plus, Trash2, Disc3, Upload, Loader2 } from "lucide-react";
+import { Pencil, Plus, Trash2, Disc3, Upload, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { saveVinyl, deleteVinyl, uploadVinylImage } from "@/lib/admin.functions";
@@ -45,6 +45,7 @@ function AdminPage() {
   const [editing, setEditing] = useState<FormState | null>(null);
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [query, setQuery] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const saveVinylFn = useServerFn(saveVinyl);
@@ -210,8 +211,28 @@ function AdminPage() {
           </Dialog>
         </div>
 
+        <div className="relative mb-4 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Поиск по исполнителю, названию, жанру..."
+            className="pl-9"
+          />
+        </div>
+
         <div className="grid gap-3">
-          {vinyls.map((v) => (
+          {vinyls
+            .filter((v) => {
+              const q = query.trim().toLowerCase();
+              if (!q) return true;
+              return (
+                v.title.toLowerCase().includes(q) ||
+                v.artist.toLowerCase().includes(q) ||
+                v.genre.toLowerCase().includes(q)
+              );
+            })
+            .map((v) => (
             <div key={v.id} className="flex items-center gap-4 bg-card border border-border rounded-lg p-3">
               <div className="h-16 w-16 rounded bg-muted overflow-hidden flex-shrink-0">
                 {v.image_url && <img src={v.image_url} alt="" className="h-full w-full object-cover" />}
