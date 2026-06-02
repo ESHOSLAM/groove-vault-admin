@@ -16,12 +16,23 @@ export type Vinyl = {
   condition: string | null;
   description: string | null;
   image_url: string | null;
+  image_urls?: string[] | null;
   in_stock: boolean;
 };
+
+export function getVinylImages(v: Vinyl): string[] {
+  const arr = (v.image_urls ?? []).filter(Boolean);
+  if (arr.length > 0) return arr;
+  return v.image_url ? [v.image_url] : [];
+}
 
 export function VinylCard({ v }: { v: Vinyl }) {
   const { add } = useCart();
   const [open, setOpen] = useState(false);
+  const images = getVinylImages(v);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const mainImage = images[0] ?? null;
+  const dialogImage = images[activeIdx] ?? mainImage;
 
   function addToCart(e?: React.MouseEvent) {
     e?.stopPropagation();
@@ -36,9 +47,9 @@ export function VinylCard({ v }: { v: Vinyl }) {
         className="group relative overflow-hidden rounded-xl bg-card border border-border/60 transition-all hover:border-primary/50 hover:-translate-y-1 hover:shadow-vinyl cursor-pointer"
       >
         <div className="aspect-square overflow-hidden bg-muted relative">
-          {v.image_url ? (
+          {mainImage ? (
             <img
-              src={v.image_url}
+              src={mainImage}
               alt={`${v.artist} — ${v.title}`}
               loading="lazy"
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -51,6 +62,11 @@ export function VinylCard({ v }: { v: Vinyl }) {
           <Badge className="absolute top-3 left-3 bg-background/80 backdrop-blur text-foreground border-border">
             {v.genre}
           </Badge>
+          {images.length > 1 && (
+            <Badge className="absolute top-3 right-3 bg-background/80 backdrop-blur text-foreground border-border">
+              +{images.length - 1}
+            </Badge>
+          )}
           {!v.in_stock && (
             <div className="absolute inset-0 bg-background/70 flex items-center justify-center">
               <span className="font-display text-2xl tracking-wider">НЕТ В НАЛИЧИИ</span>
@@ -81,12 +97,28 @@ export function VinylCard({ v }: { v: Vinyl }) {
             </DialogDescription>
           </DialogHeader>
           <div className="grid md:grid-cols-2 gap-5">
-            <div className="aspect-square overflow-hidden rounded-lg bg-muted">
-              {v.image_url ? (
-                <img src={v.image_url} alt={`${v.artist} — ${v.title}`} className="h-full w-full object-cover" />
-              ) : (
-                <div className="flex h-full items-center justify-center">
-                  <Disc3 className="h-24 w-24 text-muted-foreground" />
+            <div>
+              <div className="aspect-square overflow-hidden rounded-lg bg-muted">
+                {dialogImage ? (
+                  <img src={dialogImage} alt={`${v.artist} — ${v.title}`} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <Disc3 className="h-24 w-24 text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+              {images.length > 1 && (
+                <div className="mt-2 grid grid-cols-4 gap-2">
+                  {images.map((url, i) => (
+                    <button
+                      key={url + i}
+                      type="button"
+                      onClick={() => setActiveIdx(i)}
+                      className={`aspect-square overflow-hidden rounded border ${i === activeIdx ? "border-primary" : "border-border"}`}
+                    >
+                      <img src={url} alt="" className="h-full w-full object-cover" />
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
