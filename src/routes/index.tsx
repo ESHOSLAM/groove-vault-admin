@@ -68,7 +68,16 @@ function Index() {
             <h2 className="font-display text-4xl tracking-wide">КАТАЛОГ</h2>
             <p className="text-muted-foreground text-sm mt-1">Все пластинки в наличии</p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Поиск..."
+                className="pl-9 h-9 w-48 rounded-full"
+              />
+            </div>
             {genres.map((g) => (
               <button
                 key={g}
