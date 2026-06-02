@@ -28,11 +28,11 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-type FormState = Omit<Vinyl, "id" | "in_stock"> & { id?: string; in_stock: boolean; image_urls: string[] };
+type FormState = Omit<Vinyl, "id" | "in_stock"> & { id?: string; in_stock: boolean };
 
 const empty: FormState = {
   title: "", artist: "", genre: "Rock", year: new Date().getFullYear(),
-  price: 0, condition: "NM", description: "", image_url: "", image_urls: [], in_stock: true,
+  price: 0, condition: "NM", description: "", image_url: "", in_stock: true,
 };
 
 function AdminPage() {
@@ -56,40 +56,22 @@ function AdminPage() {
   }
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
-    if (!files.length || !editing) return;
-    const remaining = 4 - editing.image_urls.length;
-    if (remaining <= 0) {
-      toast.error("Максимум 4 изображения");
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      return;
-    }
-    const toUpload = files.slice(0, remaining);
+    const file = e.target.files?.[0];
+    if (!file || !editing) return;
     setUploading(true);
     try {
-      const urls: string[] = [];
-      for (const file of toUpload) {
-        const fd = new FormData();
-        fd.append("password", getPassword());
-        fd.append("file", file);
-        const res = await uploadFn({ data: fd });
-        urls.push(res.url);
-      }
-      const next = [...editing.image_urls, ...urls].slice(0, 4);
-      setEditing({ ...editing, image_urls: next, image_url: next[0] ?? editing.image_url });
-      toast.success(`Загружено: ${urls.length}`);
+      const fd = new FormData();
+      fd.append("password", getPassword());
+      fd.append("file", file);
+      const res = await uploadFn({ data: fd });
+      setEditing({ ...editing, image_url: res.url });
+      toast.success("Загружено");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Ошибка загрузки");
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
-  }
-
-  function removeImage(idx: number) {
-    if (!editing) return;
-    const next = editing.image_urls.filter((_, i) => i !== idx);
-    setEditing({ ...editing, image_urls: next, image_url: next[0] ?? null });
   }
 
   useEffect(() => {
@@ -116,8 +98,8 @@ function AdminPage() {
             title: editing.title, artist: editing.artist, genre: editing.genre,
             year: editing.year ?? null, price: editing.price,
             condition: editing.condition ?? null, description: editing.description ?? null,
-            image_url: editing.image_urls[0] ?? editing.image_url ?? null,
-            image_urls: editing.image_urls,
+            image_url: editing.image_url ?? null,
+            image_urls: editing.image_url ? [editing.image_url] : [],
             in_stock: editing.in_stock,
           },
         },
@@ -203,50 +185,36 @@ function AdminPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Изображения (до 4)</Label>
-                    {editing.image_urls.length > 0 && (
-                      <div className="grid grid-cols-4 gap-2">
-                        {editing.image_urls.map((url, i) => (
-                          <div key={url + i} className="relative group">
-                            <img src={url} alt="" className="aspect-square w-full object-cover rounded border border-border" />
-                            <button
-                              type="button"
-                              onClick={() => removeImage(i)}
-                              className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full h-5 w-5 flex items-center justify-center text-xs"
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
+                    <Label>Изображение</Label>
+                    {editing.image_url && (
+                      <div className="relative w-32">
+                        <img src={editing.image_url} alt="" className="aspect-square w-full object-cover rounded border border-border" />
+                        <button
+                          type="button"
+                          onClick={() => setEditing({ ...editing, image_url: "" })}
+                          className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full h-5 w-5 flex items-center justify-center text-xs"
+                        >
+                          ×
+                        </button>
                       </div>
                     )}
                     <div className="flex gap-2">
                       <Input
-                        placeholder="Добавить по URL"
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            const val = (e.target as HTMLInputElement).value.trim();
-                            if (val && editing.image_urls.length < 4) {
-                              const next = [...editing.image_urls, val];
-                              setEditing({ ...editing, image_urls: next, image_url: next[0] });
-                              (e.target as HTMLInputElement).value = "";
-                            }
-                          }
-                        }}
+                        placeholder="URL изображения"
+                        value={editing.image_url ?? ""}
+                        onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
                       />
                       <Button
                         type="button"
                         variant="outline"
                         size="icon"
-                        disabled={uploading || editing.image_urls.length >= 4}
+                        disabled={uploading}
                         onClick={() => fileInputRef.current?.click()}
                       >
                         {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                       </Button>
-                      <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileUpload} />
+                      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
                     </div>
-                    <p className="text-xs text-muted-foreground">{editing.image_urls.length}/4 — нажмите Enter для URL или загрузите файлы</p>
                   </div>
                   <div><Label>Описание</Label><Textarea value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></div>
                   <label className="flex items-center gap-2 text-sm">
@@ -291,7 +259,7 @@ function AdminPage() {
                 <p className="font-medium truncate">{v.artist} — {v.title}</p>
                 <p className="text-sm text-gold">{v.price.toLocaleString("ru-RU")} ₽ · {v.in_stock ? "в наличии" : "нет"}</p>
               </div>
-              <Button size="sm" variant="outline" onClick={() => { setEditing({ ...v, in_stock: v.in_stock, image_urls: v.image_urls ?? [] }); setOpen(true); }}>
+              <Button size="sm" variant="outline" onClick={() => { setEditing({ ...v, in_stock: v.in_stock }); setOpen(true); }}>
                 <Pencil className="h-4 w-4" />
               </Button>
               <Button size="sm" variant="destructive" onClick={() => remove(v.id)}>
