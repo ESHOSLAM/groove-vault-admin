@@ -64,10 +64,26 @@ function Index() {
 
       <section id="catalog" className="container mx-auto px-4 py-14">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
-          <div>
-            <h2 className="font-display text-4xl tracking-wide">КАТАЛОГ</h2>
-            <p className="text-muted-foreground text-sm mt-1">Все пластинки в наличии</p>
+          <div className="flex items-center gap-4 flex-wrap">
+            <div>
+              <h2 className="font-display text-4xl tracking-wide">КАТАЛОГ</h2>
+              <p className="text-muted-foreground text-sm mt-1">Все пластинки в наличии</p>
+            </div>
+            <a
+              href="https://t.me/Selling_Vinil_LP"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm text-white bg-gradient-to-r from-[#229ED9] via-[#34b3e6] to-[#229ED9] bg-[length:200%_100%] shadow-lg shadow-[#229ED9]/30 transition-all duration-300 hover:scale-105 hover:shadow-[#229ED9]/60 animate-[shimmer_3s_linear_infinite] overflow-hidden group"
+              style={{ animation: "shimmer 3s linear infinite" }}
+            >
+              <span className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+              <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4 relative z-10" aria-hidden="true">
+                <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z" />
+              </svg>
+              <span className="relative z-10">Мой Telegram канал</span>
+            </a>
           </div>
+
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative group">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground pointer-events-none" />
