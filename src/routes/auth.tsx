@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const ADMIN_PASSWORD = "zaqsd1974zazqsd";
+const ADMIN_PASSWORD = "zaqsd1974zaqsd";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Администратор — ГРАМПЛАСТ" }] }),
