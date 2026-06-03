@@ -95,7 +95,7 @@ function AboutPage() {
             </Button>
             <Button asChild size="lg" className="gap-2">
               <a
-                href="https://vk.com/ggssds"
+                href="https://vk.com/vinilsalesev"
                 target="_blank"
                 rel="noopener noreferrer"
               >

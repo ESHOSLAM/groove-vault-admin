@@ -26,7 +26,7 @@ export function CartDrawer() {
   };
 
   const sendToSellerVk = () => {
-    window.open("https://vk.com/ggssds", "_blank");
+    window.open("https://vk.com/vinilsalesev", "_blank");
     toast.success("Открываю ВК продавца");
     setConfirmOpen(false);
   };
