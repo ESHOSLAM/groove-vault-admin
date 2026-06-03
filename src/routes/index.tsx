@@ -27,7 +27,7 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 30;
 
 function getPageNumbers(current: number, total: number) {
   const pages: (number | string)[] = [];
