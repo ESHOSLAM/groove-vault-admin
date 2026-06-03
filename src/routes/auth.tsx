@@ -1,12 +1,12 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Disc3, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-const ADMIN_PASSWORD = "zaqsd1974zaqsd";
+import { verifyAdmin } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Администратор — ГРАМПЛАСТ" }] }),
@@ -15,22 +15,24 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const verifyAdminFn = useServerFn(verifyAdmin);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    if (password === ADMIN_PASSWORD) {
-      sessionStorage.setItem("admin_access", "true");
-      sessionStorage.setItem("admin_password", password);
+    try {
+      const res = await verifyAdminFn({ data: { password } });
+      sessionStorage.setItem("admin_token", res.token);
       window.dispatchEvent(new Event("admin-access-changed"));
       toast.success("Добро пожаловать, администратор!");
       navigate({ to: "/admin" });
-    } else {
-      toast.error("Неверный пароль");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Неверный пароль");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (

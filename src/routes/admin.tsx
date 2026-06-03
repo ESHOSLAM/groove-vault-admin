@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Pencil, Plus, Trash2, Disc3, Upload, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { saveVinyl, deleteVinyl, uploadVinylImage } from "@/lib/admin.functions";
+import { saveVinyl, deleteVinyl, uploadVinylImage, checkAdminToken } from "@/lib/admin.functions";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,11 +48,12 @@ function AdminPage() {
   const saveVinylFn = useServerFn(saveVinyl);
   const deleteVinylFn = useServerFn(deleteVinyl);
   const uploadFn = useServerFn(uploadVinylImage);
+  const checkAdminFn = useServerFn(checkAdminToken);
 
-  function getPassword(): string {
-    const p = sessionStorage.getItem("admin_password");
-    if (!p) throw new Error("Сессия истекла, войдите снова");
-    return p;
+  function getToken(): string {
+    const t = typeof window !== "undefined" ? sessionStorage.getItem("admin_token") : null;
+    if (!t) throw new Error("Сессия истекла, войдите снова");
+    return t;
   }
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -61,7 +62,7 @@ function AdminPage() {
     setUploading(true);
     try {
       const fd = new FormData();
-      fd.append("password", getPassword());
+      fd.append("token", getToken());
       fd.append("file", file);
       const res = await uploadFn({ data: fd });
       setEditing({ ...editing, image_url: res.url });
@@ -75,10 +76,31 @@ function AdminPage() {
   }
 
   useEffect(() => {
-    const ok = typeof window !== "undefined" && sessionStorage.getItem("admin_access") === "true";
-    setIsAdmin(ok);
-    if (!ok) navigate({ to: "/auth" });
-  }, [navigate]);
+    let cancelled = false;
+    (async () => {
+      const t = typeof window !== "undefined" ? sessionStorage.getItem("admin_token") : null;
+      if (!t) {
+        if (!cancelled) {
+          setIsAdmin(false);
+          navigate({ to: "/auth" });
+        }
+        return;
+      }
+      try {
+        await checkAdminFn({ data: { token: t } });
+        if (!cancelled) setIsAdmin(true);
+      } catch {
+        if (!cancelled) {
+          sessionStorage.removeItem("admin_token");
+          setIsAdmin(false);
+          navigate({ to: "/auth" });
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate, checkAdminFn]);
 
   async function refresh() {
     const { data } = await supabase.from("vinyls").select("*").order("created_at", { ascending: false });
@@ -92,7 +114,7 @@ function AdminPage() {
     try {
       await saveVinylFn({
         data: {
-          password: getPassword(),
+          token: getToken(),
           id: editing.id,
           data: {
             title: editing.title, artist: editing.artist, genre: editing.genre,
@@ -114,7 +136,7 @@ function AdminPage() {
   async function remove(id: string) {
     if (!confirm("Удалить пластинку?")) return;
     try {
-      await deleteVinylFn({ data: { password: getPassword(), id } });
+      await deleteVinylFn({ data: { token: getToken(), id } });
       toast.success("Удалено"); refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Ошибка удаления");
