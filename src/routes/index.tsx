@@ -110,7 +110,7 @@ function Index() {
           <div className="flex items-center gap-4 flex-wrap">
             <div>
               <h2 className="font-display text-4xl tracking-wide">КАТАЛОГ</h2>
-              <p className="text-muted-foreground text-sm mt-1">Все пластинки в наличии</p>
+              <p className="text-muted-foreground text-sm mt-1">Всего пластинок: <span className="text-foreground font-semibold">{vinyls.length}</span></p>
             </div>
             <a
               href="https://t.me/Selling_Vinil_LP"
