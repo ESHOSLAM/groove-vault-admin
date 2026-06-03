@@ -5,7 +5,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Input } from "@/components/ui/input";
 import { VinylCard, type Vinyl } from "@/components/VinylCard";
-
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -19,11 +27,40 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+const PAGE_SIZE = 50;
+
+function getPageNumbers(current: number, total: number) {
+  const pages: (number | string)[] = [];
+  if (total <= 7) {
+    for (let i = 1; i <= total; i++) pages.push(i);
+    return pages;
+  }
+  if (current <= 4) {
+    for (let i = 1; i <= 5; i++) pages.push(i);
+    pages.push("ellipsis");
+    pages.push(total);
+    return pages;
+  }
+  if (current >= total - 3) {
+    pages.push(1);
+    pages.push("ellipsis");
+    for (let i = total - 4; i <= total; i++) pages.push(i);
+    return pages;
+  }
+  pages.push(1);
+  pages.push("ellipsis");
+  for (let i = current - 1; i <= current + 1; i++) pages.push(i);
+  pages.push("ellipsis");
+  pages.push(total);
+  return pages;
+}
+
 function Index() {
   const [vinyls, setVinyls] = useState<Vinyl[]>([]);
   const [genre, setGenre] = useState<string>("Все");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     supabase.from("vinyls").select("*").order("created_at", { ascending: false })
@@ -32,6 +69,10 @@ function Index() {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [query, genre]);
 
   const genres = useMemo(() => {
     const set = new Set(vinyls.map((v) => v.genre).filter((g) => g.toLowerCase() !== "классика"));
@@ -50,6 +91,10 @@ function Index() {
       );
     });
   }, [vinyls, genre, query]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   const byGenre = useMemo(() => {
     const groups: Record<string, Vinyl[]> = {};
     for (const v of vinyls) (groups[v.genre] ??= []).push(v);
@@ -59,8 +104,6 @@ function Index() {
   return (
     <div className="min-h-screen bg-hero">
       <Header />
-
-
 
       <section id="catalog" className="container mx-auto px-4 py-14">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
@@ -118,9 +161,63 @@ function Index() {
         ) : filtered.length === 0 ? (
           <p className="text-center text-muted-foreground py-20">Пластинки скоро появятся.</p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {filtered.map((v) => <VinylCard key={v.id} v={v} />)}
-          </div>
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {paginated.map((v) => <VinylCard key={v.id} v={v} />)}
+            </div>
+            {totalPages > 1 && (
+              <div className="mt-8 flex justify-center">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        href="#catalog"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (page > 1) setPage(page - 1);
+                        }}
+                        className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+                      />
+                    </PaginationItem>
+                    {getPageNumbers(page, totalPages).map((p, i) => {
+                      if (p === "ellipsis") {
+                        return (
+                          <PaginationItem key={`ellipsis-${i}`}>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        );
+                      }
+                      const n = p as number;
+                      return (
+                        <PaginationItem key={n}>
+                          <PaginationLink
+                            href="#catalog"
+                            isActive={page === n}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setPage(n);
+                            }}
+                          >
+                            {n}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    })}
+                    <PaginationItem>
+                      <PaginationNext
+                        href="#catalog"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (page < totalPages) setPage(page + 1);
+                        }}
+                        className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
+          </>
         )}
       </section>
 
