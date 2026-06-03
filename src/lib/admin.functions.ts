@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-const ADMIN_PASSWORD = "zaqsd1974zazqsd";
+const ADMIN_PASSWORD = "zaqsd1974zaqsd";
 
 function assertAdmin(password: string) {
   if (password !== ADMIN_PASSWORD) {
