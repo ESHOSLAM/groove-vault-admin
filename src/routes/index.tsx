@@ -61,6 +61,18 @@ function Index() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
+  const [genrePages, setGenrePages] = useState<Record<string, number>>({});
+
+  const goToPage = (n: number) => {
+    setPage(n);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const goToGenrePage = (g: string, n: number) => {
+    setGenrePages((prev) => ({ ...prev, [g]: n }));
+    const el = document.getElementById(`genre-${g}`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   useEffect(() => {
     supabase.from("vinyls").select("*").order("created_at", { ascending: false })
@@ -174,7 +186,7 @@ function Index() {
                         href="#catalog"
                         onClick={(e) => {
                           e.preventDefault();
-                          if (page > 1) setPage(page - 1);
+                          if (page > 1) goToPage(page - 1);
                         }}
                         className={page <= 1 ? "pointer-events-none opacity-50" : ""}
                       />
@@ -195,7 +207,7 @@ function Index() {
                             isActive={page === n}
                             onClick={(e) => {
                               e.preventDefault();
-                              setPage(n);
+                              goToPage(n);
                             }}
                           >
                             {n}
@@ -208,7 +220,7 @@ function Index() {
                         href="#catalog"
                         onClick={(e) => {
                           e.preventDefault();
-                          if (page < totalPages) setPage(page + 1);
+                          if (page < totalPages) goToPage(page + 1);
                         }}
                         className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
                       />
@@ -224,17 +236,65 @@ function Index() {
       <section id="genres" className="container mx-auto px-4 py-14 border-t border-border/60">
         <h2 className="font-display text-4xl tracking-wide mb-8">ПО ЖАНРАМ</h2>
         <div className="space-y-14">
-          {Object.entries(byGenre).map(([g, items]) => (
-            <div key={g}>
+          {Object.entries(byGenre).map(([g, items]) => {
+            const gPage = genrePages[g] ?? 1;
+            const gTotal = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+            const gItems = items.slice((gPage - 1) * PAGE_SIZE, gPage * PAGE_SIZE);
+            return (
+            <div key={g} id={`genre-${g}`}>
               <div className="flex items-baseline justify-between mb-5">
                 <h3 className="font-display text-2xl tracking-wider text-gold">{g.toUpperCase()}</h3>
                 <span className="text-sm text-muted-foreground">{items.length} {items.length === 1 ? "пластинка" : "пластинок"}</span>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-                {items.slice(0, 4).map((v) => <VinylCard key={v.id} v={v} />)}
+                {gItems.map((v) => <VinylCard key={v.id} v={v} />)}
               </div>
+              {gTotal > 1 && (
+                <div className="mt-6 flex justify-center">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          href={`#genre-${g}`}
+                          onClick={(e) => { e.preventDefault(); if (gPage > 1) goToGenrePage(g, gPage - 1); }}
+                          className={gPage <= 1 ? "pointer-events-none opacity-50" : ""}
+                        />
+                      </PaginationItem>
+                      {getPageNumbers(gPage, gTotal).map((p, i) => {
+                        if (p === "ellipsis") {
+                          return (
+                            <PaginationItem key={`g-${g}-el-${i}`}>
+                              <PaginationEllipsis />
+                            </PaginationItem>
+                          );
+                        }
+                        const n = p as number;
+                        return (
+                          <PaginationItem key={`g-${g}-${n}`}>
+                            <PaginationLink
+                              href={`#genre-${g}`}
+                              isActive={gPage === n}
+                              onClick={(e) => { e.preventDefault(); goToGenrePage(g, n); }}
+                            >
+                              {n}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
+                      <PaginationItem>
+                        <PaginationNext
+                          href={`#genre-${g}`}
+                          onClick={(e) => { e.preventDefault(); if (gPage < gTotal) goToGenrePage(g, gPage + 1); }}
+                          className={gPage >= gTotal ? "pointer-events-none opacity-50" : ""}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
             </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
