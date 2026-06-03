@@ -186,7 +186,7 @@ function Index() {
                         href="#catalog"
                         onClick={(e) => {
                           e.preventDefault();
-                          if (page > 1) setPage(page - 1);
+                          if (page > 1) goToPage(page - 1);
                         }}
                         className={page <= 1 ? "pointer-events-none opacity-50" : ""}
                       />
@@ -207,7 +207,7 @@ function Index() {
                             isActive={page === n}
                             onClick={(e) => {
                               e.preventDefault();
-                              setPage(n);
+                              goToPage(n);
                             }}
                           >
                             {n}
@@ -220,7 +220,7 @@ function Index() {
                         href="#catalog"
                         onClick={(e) => {
                           e.preventDefault();
-                          if (page < totalPages) setPage(page + 1);
+                          if (page < totalPages) goToPage(page + 1);
                         }}
                         className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
                       />
