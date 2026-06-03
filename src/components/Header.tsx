@@ -9,8 +9,8 @@ export function Header() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    setIsAdmin(sessionStorage.getItem("admin_access") === "true");
-    const handler = () => setIsAdmin(sessionStorage.getItem("admin_access") === "true");
+    setIsAdmin(!!sessionStorage.getItem("admin_token"));
+    const handler = () => setIsAdmin(!!sessionStorage.getItem("admin_token"));
     window.addEventListener("storage", handler);
     window.addEventListener("admin-access-changed", handler);
     return () => {
@@ -20,8 +20,7 @@ export function Header() {
   }, []);
 
   function logout() {
-    sessionStorage.removeItem("admin_access");
-    sessionStorage.removeItem("admin_password");
+    sessionStorage.removeItem("admin_token");
     window.dispatchEvent(new Event("admin-access-changed"));
     navigate({ to: "/" });
   }
