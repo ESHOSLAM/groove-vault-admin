@@ -61,6 +61,18 @@ function Index() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
+  const [genrePages, setGenrePages] = useState<Record<string, number>>({});
+
+  const goToPage = (n: number) => {
+    setPage(n);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const goToGenrePage = (g: string, n: number) => {
+    setGenrePages((prev) => ({ ...prev, [g]: n }));
+    const el = document.getElementById(`genre-${g}`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   useEffect(() => {
     supabase.from("vinyls").select("*").order("created_at", { ascending: false })
