@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Pencil, Plus, Trash2, Disc3, Upload, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { saveVinyl, deleteVinyl, uploadVinylImage, checkAdminToken } from "@/lib/admin.functions";
+import { saveVinyl, deleteVinyl, uploadVinylImage, uploadVinylAudio, checkAdminToken } from "@/lib/admin.functions";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,7 +32,7 @@ type FormState = Omit<Vinyl, "id" | "in_stock"> & { id?: string; in_stock: boole
 
 const empty: FormState = {
   title: "", artist: "", genre: "Rock", year: new Date().getFullYear(),
-  price: 0, condition: "NM", description: "", image_url: "", in_stock: true,
+  price: 0, condition: "NM", description: "", image_url: "", audio_url: "", in_stock: true,
 };
 
 function AdminPage() {
@@ -42,12 +42,15 @@ function AdminPage() {
   const [editing, setEditing] = useState<FormState | null>(null);
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingAudio, setUploadingAudio] = useState(false);
   const [query, setQuery] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const audioInputRef = useRef<HTMLInputElement>(null);
 
   const saveVinylFn = useServerFn(saveVinyl);
   const deleteVinylFn = useServerFn(deleteVinyl);
   const uploadFn = useServerFn(uploadVinylImage);
+  const uploadAudioFn = useServerFn(uploadVinylAudio);
   const checkAdminFn = useServerFn(checkAdminToken);
 
   function getToken(): string {
