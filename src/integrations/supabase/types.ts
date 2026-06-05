@@ -38,6 +38,7 @@ export type Database = {
       vinyls: {
         Row: {
           artist: string
+          audio_url: string | null
           condition: string | null
           created_at: string
           description: string | null
@@ -53,6 +54,7 @@ export type Database = {
         }
         Insert: {
           artist: string
+          audio_url?: string | null
           condition?: string | null
           created_at?: string
           description?: string | null
@@ -68,6 +70,7 @@ export type Database = {
         }
         Update: {
           artist?: string
+          audio_url?: string | null
           condition?: string | null
           created_at?: string
           description?: string | null
