@@ -259,6 +259,38 @@ function AdminPage() {
                     </div>
                   </div>
                   <div><Label>Описание</Label><Textarea value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></div>
+                  <div className="space-y-2">
+                    <Label>Аудио (MP3)</Label>
+                    {editing.audio_url && (
+                      <div className="flex items-center gap-2">
+                        <audio controls preload="none" src={editing.audio_url} className="flex-1 h-9" />
+                        <button
+                          type="button"
+                          onClick={() => setEditing({ ...editing, audio_url: "" })}
+                          className="bg-destructive text-destructive-foreground rounded h-7 w-7 flex items-center justify-center text-sm"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="URL mp3-файла"
+                        value={editing.audio_url ?? ""}
+                        onChange={(e) => setEditing({ ...editing, audio_url: e.target.value })}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        disabled={uploadingAudio}
+                        onClick={() => audioInputRef.current?.click()}
+                      >
+                        {uploadingAudio ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                      </Button>
+                      <input ref={audioInputRef} type="file" accept="audio/mpeg,audio/mp3,.mp3" className="hidden" onChange={handleAudioUpload} />
+                    </div>
+                  </div>
                   <label className="flex items-center gap-2 text-sm">
                     <input type="checkbox" checked={editing.in_stock} onChange={(e) => setEditing({ ...editing, in_stock: e.target.checked })} />
                     В наличии
