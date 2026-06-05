@@ -118,3 +118,33 @@ export const uploadVinylImage = createServerFn({ method: "POST" })
     if (sErr || !signed) throw new Error(sErr?.message ?? "Не удалось получить URL");
     return { url: signed.signedUrl };
   });
+
+export const uploadVinylAudio = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => {
+    if (!(input instanceof FormData)) throw new Error("Ожидается FormData");
+    const token = input.get("token");
+    const file = input.get("file");
+    if (typeof token !== "string") throw new Error("Нет токена");
+    if (!(file instanceof File)) throw new Error("Нет файла");
+    if (file.size > 25 * 1024 * 1024) throw new Error("Файл больше 25 МБ");
+    const isMp3 =
+      file.type === "audio/mpeg" ||
+      file.type === "audio/mp3" ||
+      file.name.toLowerCase().endsWith(".mp3");
+    if (!isMp3) throw new Error("Только MP3");
+    return { token, file };
+  })
+  .handler(async ({ data }) => {
+    assertAdmin(data.token);
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.mp3`;
+    const buffer = new Uint8Array(await data.file.arrayBuffer());
+    const { error: upErr } = await supabaseAdmin.storage
+      .from("vinyl-audio")
+      .upload(path, buffer, { contentType: "audio/mpeg", cacheControl: "31536000", upsert: false });
+    if (upErr) throw new Error(upErr.message);
+    const { data: signed, error: sErr } = await supabaseAdmin.storage
+      .from("vinyl-audio")
+      .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+    if (sErr || !signed) throw new Error(sErr?.message ?? "Не удалось получить URL");
+    return { url: signed.signedUrl };
+  });
