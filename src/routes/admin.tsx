@@ -78,6 +78,25 @@ function AdminPage() {
     }
   }
 
+  async function handleAudioUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !editing) return;
+    setUploadingAudio(true);
+    try {
+      const fd = new FormData();
+      fd.append("token", getToken());
+      fd.append("file", file);
+      const res = await uploadAudioFn({ data: fd });
+      setEditing({ ...editing, audio_url: res.url });
+      toast.success("Аудио загружено");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Ошибка загрузки аудио");
+    } finally {
+      setUploadingAudio(false);
+      if (audioInputRef.current) audioInputRef.current.value = "";
+    }
+  }
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -125,6 +144,7 @@ function AdminPage() {
             condition: editing.condition ?? null, description: editing.description ?? null,
             image_url: editing.image_url ?? null,
             image_urls: editing.image_url ? [editing.image_url] : [],
+            audio_url: editing.audio_url ?? null,
             in_stock: editing.in_stock,
           },
         },
