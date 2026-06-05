@@ -62,6 +62,7 @@ const vinylPayload = z.object({
     description: z.string().trim().max(2000).nullable().optional(),
     image_url: z.string().trim().max(2000).nullable().optional(),
     image_urls: z.array(z.string().trim().min(1).max(2000)).max(4).optional(),
+    audio_url: z.string().trim().max(2000).nullable().optional(),
     in_stock: z.boolean(),
   }),
 });
