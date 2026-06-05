@@ -17,6 +17,7 @@ export type Vinyl = {
   description: string | null;
   image_url: string | null;
   image_urls?: string[] | null;
+  audio_url?: string | null;
   in_stock: boolean;
 };
 
@@ -131,6 +132,14 @@ export function VinylCard({ v }: { v: Vinyl }) {
               <p className="mt-2 text-sm leading-relaxed whitespace-pre-wrap break-words">
                 {v.description?.trim() || "Описание пока не добавлено."}
               </p>
+              {v.audio_url && (
+                <div className="mt-4">
+                  <h4 className="text-sm uppercase tracking-widest text-muted-foreground mb-2">Послушать</h4>
+                  <audio controls preload="none" src={v.audio_url} className="w-full">
+                    Ваш браузер не поддерживает аудио.
+                  </audio>
+                </div>
+              )}
               <Button className="mt-auto pt-3" disabled={!v.in_stock} onClick={addToCart}>
                 <ShoppingCart className="h-4 w-4 mr-2" /> В корзину
               </Button>

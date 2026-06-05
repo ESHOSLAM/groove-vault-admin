@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Pencil, Plus, Trash2, Disc3, Upload, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { saveVinyl, deleteVinyl, uploadVinylImage, checkAdminToken } from "@/lib/admin.functions";
+import { saveVinyl, deleteVinyl, uploadVinylImage, uploadVinylAudio, checkAdminToken } from "@/lib/admin.functions";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,7 +32,7 @@ type FormState = Omit<Vinyl, "id" | "in_stock"> & { id?: string; in_stock: boole
 
 const empty: FormState = {
   title: "", artist: "", genre: "Rock", year: new Date().getFullYear(),
-  price: 0, condition: "NM", description: "", image_url: "", in_stock: true,
+  price: 0, condition: "NM", description: "", image_url: "", audio_url: "", in_stock: true,
 };
 
 function AdminPage() {
@@ -42,12 +42,15 @@ function AdminPage() {
   const [editing, setEditing] = useState<FormState | null>(null);
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingAudio, setUploadingAudio] = useState(false);
   const [query, setQuery] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const audioInputRef = useRef<HTMLInputElement>(null);
 
   const saveVinylFn = useServerFn(saveVinyl);
   const deleteVinylFn = useServerFn(deleteVinyl);
   const uploadFn = useServerFn(uploadVinylImage);
+  const uploadAudioFn = useServerFn(uploadVinylAudio);
   const checkAdminFn = useServerFn(checkAdminToken);
 
   function getToken(): string {
@@ -72,6 +75,25 @@ function AdminPage() {
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  async function handleAudioUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !editing) return;
+    setUploadingAudio(true);
+    try {
+      const fd = new FormData();
+      fd.append("token", getToken());
+      fd.append("file", file);
+      const res = await uploadAudioFn({ data: fd });
+      setEditing({ ...editing, audio_url: res.url });
+      toast.success("Аудио загружено");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Ошибка загрузки аудио");
+    } finally {
+      setUploadingAudio(false);
+      if (audioInputRef.current) audioInputRef.current.value = "";
     }
   }
 
@@ -122,6 +144,7 @@ function AdminPage() {
             condition: editing.condition ?? null, description: editing.description ?? null,
             image_url: editing.image_url ?? null,
             image_urls: editing.image_url ? [editing.image_url] : [],
+            audio_url: editing.audio_url ?? null,
             in_stock: editing.in_stock,
           },
         },
@@ -236,6 +259,38 @@ function AdminPage() {
                     </div>
                   </div>
                   <div><Label>Описание</Label><Textarea value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></div>
+                  <div className="space-y-2">
+                    <Label>Аудио (MP3)</Label>
+                    {editing.audio_url && (
+                      <div className="flex items-center gap-2">
+                        <audio controls preload="none" src={editing.audio_url} className="flex-1 h-9" />
+                        <button
+                          type="button"
+                          onClick={() => setEditing({ ...editing, audio_url: "" })}
+                          className="bg-destructive text-destructive-foreground rounded h-7 w-7 flex items-center justify-center text-sm"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="URL mp3-файла"
+                        value={editing.audio_url ?? ""}
+                        onChange={(e) => setEditing({ ...editing, audio_url: e.target.value })}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        disabled={uploadingAudio}
+                        onClick={() => audioInputRef.current?.click()}
+                      >
+                        {uploadingAudio ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                      </Button>
+                      <input ref={audioInputRef} type="file" accept="audio/mpeg,audio/mp3,.mp3" className="hidden" onChange={handleAudioUpload} />
+                    </div>
+                  </div>
                   <label className="flex items-center gap-2 text-sm">
                     <input type="checkbox" checked={editing.in_stock} onChange={(e) => setEditing({ ...editing, in_stock: e.target.checked })} />
                     В наличии

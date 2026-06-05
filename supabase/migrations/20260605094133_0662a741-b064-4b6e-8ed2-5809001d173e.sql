@@ -1,0 +1,1 @@
+ALTER TABLE public.vinyls ADD COLUMN IF NOT EXISTS audio_url text;
