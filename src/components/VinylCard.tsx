@@ -133,7 +133,7 @@ export function VinylCard({ v }: { v: Vinyl }) {
                 {v.description?.trim() || "Описание пока не добавлено."}
               </p>
               {v.audio_url && (
-                <div className="mt-4">
+                <div className="mt-4 mb-4">
                   <h4 className="text-sm uppercase tracking-widest text-muted-foreground mb-2">Послушать</h4>
                   <audio controls preload="none" src={v.audio_url} className="w-full">
                     Ваш браузер не поддерживает аудио.
