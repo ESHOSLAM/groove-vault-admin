@@ -47,6 +47,8 @@ function AdminPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
 
+  const totalValue = vinyls.reduce((sum, v) => sum + (v.price || 0), 0);
+
   const saveVinylFn = useServerFn(saveVinyl);
   const deleteVinylFn = useServerFn(deleteVinyl);
   const uploadFn = useServerFn(uploadVinylImage);
@@ -188,7 +190,10 @@ function AdminPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="font-display text-4xl tracking-wide">АДМИН-ПАНЕЛЬ</h1>
-            <p className="text-muted-foreground text-sm mt-1">{vinyls.length} пластинок в каталоге</p>
+            <p className="text-muted-foreground text-sm mt-1">
+              {vinyls.length} пластинок в каталоге ·{" "}
+              <span className="text-gold font-medium">{totalValue.toLocaleString("ru-RU")} ₽</span> общая стоимость
+            </p>
           </div>
           <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
             <DialogTrigger asChild>
