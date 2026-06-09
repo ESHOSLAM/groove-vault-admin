@@ -47,6 +47,8 @@ function AdminPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
 
+  const totalValue = vinyls.reduce((sum, v) => sum + (v.price || 0), 0);
+
   const saveVinylFn = useServerFn(saveVinyl);
   const deleteVinylFn = useServerFn(deleteVinyl);
   const uploadFn = useServerFn(uploadVinylImage);
